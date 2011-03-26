@@ -3,6 +3,7 @@ from weakref import WeakValueDictionary
 from django.db.models.base import Model, ModelBase
 
 from manager import SharedMemoryManager
+from idmapper import _tls
 
 class SharedMemoryModelBase(ModelBase):
     def __new__(cls, name, bases, attrs):
@@ -36,11 +37,6 @@ class SharedMemoryModelBase(ModelBase):
 
         return cached_instance
 
-    def _prepare(cls):
-        cls.__instance_cache__ = WeakValueDictionary()
-        super(SharedMemoryModelBase, cls)._prepare()
-        
-        
 
 class SharedMemoryModel(Model):
     # XXX: this is creating a model and it shouldn't be.. how do we properly
@@ -77,13 +73,17 @@ class SharedMemoryModel(Model):
         return result
     _get_cache_key = classmethod(_get_cache_key)
 
-    def get_cached_instance(cls, id):
+    def get_cached_instance(cls, id_):
         """
         Method to retrieve a cached instance by pk value. Returns None when not found 
         (which will always be the case when caching is disabled for this class). Please 
         note that the lookup will be done even when instance caching is disabled.
         """
-        return cls.__instance_cache__.get(id)
+        if not hasattr(_tls, 'idmapper_cache'):
+            return None
+
+        return _tls.idmapper_cache.get(cls, {}).get(id_)
+
     get_cached_instance = classmethod(get_cached_instance)
 
     def cache_instance(cls, instance):
@@ -91,11 +91,18 @@ class SharedMemoryModel(Model):
         Method to store an instance in the cache.
         """
         if instance._get_pk_val() is not None:
-            cls.__instance_cache__[instance._get_pk_val()] = instance
+            if not hasattr(_tls, 'idmapper_cache'):
+                _tls.idmapper_cache = {}
+
+            if not cls in _tls.idmapper_cache:
+                _tls.idmapper_cache[cls] = WeakValueDictionary()
+
+            _tls.idmapper_cache[cls][instance._get_pk_val()] = instance
+
     cache_instance = classmethod(cache_instance)
 
     def _flush_cached_by_key(cls, key):
-        del cls.__instance_cache__[key]
+        del _tls.idmapper_cache[cls][key]
     _flush_cached_by_key = classmethod(_flush_cached_by_key)
         
     def flush_cached_instance(cls, instance):
