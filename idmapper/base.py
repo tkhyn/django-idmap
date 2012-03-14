@@ -5,6 +5,7 @@ from django.db.models.base import Model, ModelBase
 from manager import SharedMemoryManager
 from idmapper import _tls
 
+
 class SharedMemoryModelBase(ModelBase):
     def __new__(cls, name, bases, attrs):
         super_new = super(ModelBase, cls).__new__
@@ -18,13 +19,13 @@ class SharedMemoryModelBase(ModelBase):
     def __call__(cls, *args, **kwargs):
         """
         this method will either create an instance (by calling the default implementation)
-        or try to retrieve one from the class-wide cache by infering the pk value from 
-        args and kwargs. If instance caching is enabled for this class, the cache is 
+        or try to retrieve one from the class-wide cache by infering the pk value from
+        args and kwargs. If instance caching is enabled for this class, the cache is
         populated whenever possible (ie when it is possible to infer the pk value).
         """
         def new_instance():
             return super(SharedMemoryModelBase, cls).__call__(*args, **kwargs)
-        
+
         instance_key = cls._get_cache_key(args, kwargs)
         # depending on the arguments, we might not be able to infer the PK, so in that case we create a new instance
         if instance_key is None:
@@ -38,15 +39,25 @@ class SharedMemoryModelBase(ModelBase):
         return cached_instance
 
 
+class SouthWorkaround(object):
+    abstract = True
+    local_fields = []
+    local_many_to_many = []
+    parents = {}
+    abstract_managers = []
+    virtual_fields = []
+
+
 class SharedMemoryModel(Model):
     # XXX: this is creating a model and it shouldn't be.. how do we properly
     # subclass now?
     __metaclass__ = SharedMemoryModelBase
+    _meta = SouthWorkaround()
 
     def _get_cache_key(cls, args, kwargs):
         """
-        This method is used by the caching subsystem to infer the PK value from the constructor arguments. 
-        It is used to decide if an instance has to be built or is already in the cache. 
+        This method is used by the caching subsystem to infer the PK value from the constructor arguments.
+        It is used to decide if an instance has to be built or is already in the cache.
         """
         result = None
         # Quick hack for my composites work for now.
@@ -55,18 +66,18 @@ class SharedMemoryModel(Model):
         else:
             pk = cls._meta.pk
         # get the index of the pk in the class fields. this should be calculated *once*, but isn't atm
-        pk_position = cls._meta.fields.index(pk) 
-        if len(args) > pk_position: 
-            # if it's in the args, we can get it easily by index 
+        pk_position = cls._meta.fields.index(pk)
+        if len(args) > pk_position:
+            # if it's in the args, we can get it easily by index
             result = args[pk_position]
         elif pk.attname in kwargs:
-            # retrieve the pk value. Note that we use attname instead of name, to handle the case where the pk is a 
+            # retrieve the pk value. Note that we use attname instead of name, to handle the case where the pk is a
             # a ForeignKey.
             result = kwargs[pk.attname]
         elif pk.name != pk.attname and pk.name in kwargs:
             # ok we couldn't find the value, but maybe it's a FK and we can find the corresponding object instead
             result = kwargs[pk.name]
-        
+
         if result is not None and isinstance(result, Model):
             # if the pk value happens to be a model instance (which can happen wich a FK), we'd rather use its own pk as the key
             result = result._get_pk_val()
@@ -75,8 +86,8 @@ class SharedMemoryModel(Model):
 
     def get_cached_instance(cls, id_):
         """
-        Method to retrieve a cached instance by pk value. Returns None when not found 
-        (which will always be the case when caching is disabled for this class). Please 
+        Method to retrieve a cached instance by pk value. Returns None when not found
+        (which will always be the case when caching is disabled for this class). Please
         note that the lookup will be done even when instance caching is disabled.
         """
         if not hasattr(_tls, 'idmapper_cache'):
@@ -104,15 +115,15 @@ class SharedMemoryModel(Model):
     def _flush_cached_by_key(cls, key):
         del _tls.idmapper_cache[cls][key]
     _flush_cached_by_key = classmethod(_flush_cached_by_key)
-        
+
     def flush_cached_instance(cls, instance):
         """
-        Method to flush an instance from the cache. The instance will always be flushed from the cache, 
+        Method to flush an instance from the cache. The instance will always be flushed from the cache,
         since this is most likely called from delete(), and we want to make sure we don't cache dead objects.
         """
         cls._flush_cached_by_key(instance._get_pk_val())
     flush_cached_instance = classmethod(flush_cached_instance)
-    
+
     def save(self, *args, **kwargs):
         super(SharedMemoryModel, self).save(*args, **kwargs)
         self.__class__.cache_instance(self)
