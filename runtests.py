@@ -1,21 +1,10 @@
 import sys
 
+from tests import settings as SETTINGS
 from django.conf import settings
 
-settings.configure(
-    DEBUG=True,
-    DATABASES={
-        'default': {
-            'NAME': 'idmapper',
-            'ENGINE': 'django.db.backends.sqlite3',
-        }
-    },
-    INSTALLED_APPS=('django.contrib.auth',
-                    'django.contrib.contenttypes',
-                    'django.contrib.sessions',
-                    'django.contrib.admin',
-                    'idmapper',),
-)
+settings.configure(**{k:getattr(SETTINGS,k) for k in dir(SETTINGS) \
+                          if k[0].isupper()})
 
 from django.test.simple import DjangoTestSuiteRunner
 

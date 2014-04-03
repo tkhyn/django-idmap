@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from base import SharedMemoryModel
+from idmapper.models import SharedMemoryModel
 from django.db import models
 
 class Category(SharedMemoryModel):
