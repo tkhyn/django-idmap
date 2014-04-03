@@ -10,15 +10,15 @@ Usage
 To use the shared memory model you simply need to inherit from it (instead of models.Model). This enable all queries (and relational queries) to this model to use the shared memory instance cache, effectively creating a single instance for each unique row (based on primary key) in the queryset.
 
 For example, if you want to simply mark all of your models as a SharedMemoryModel, you might as well just import it as models.
-::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 	from idmapper import models
 
 	class MyModel(models.SharedMemoryModel):
 	    name = models.CharField(...)
 
-Because the system is isolated, you may mix and match SharedMemoryModel's with regular Model's.
-::
+Because the system is isolated, you may mix and match SharedMemoryModels with regular Models. The module idmapper.models imports everything from django.db.models and only adds SharedMemoryModel, so you can simply replace your import of models from django.db.
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 	from idmapper import models
 

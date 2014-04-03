@@ -1,20 +1,20 @@
 from weakref import WeakValueDictionary
 
+from django.core.signals import request_finished
 from django.db.models.base import Model, ModelBase
+from django.db.models.signals import post_save, pre_delete, \
+  post_syncdb
 
 from manager import SharedMemoryManager
 from idmapper import _tls
 
 
-class SharedMemoryModelBase(ModelBase):
-    def __new__(cls, name, bases, attrs):
-        super_new = super(ModelBase, cls).__new__
-        parents = [b for b in bases if isinstance(b, SharedMemoryModelBase)]
-        if not parents:
-            # If this isn't a subclass of Model, don't do anything special.
-            return super_new(cls, name, bases, attrs)
 
-        return super(SharedMemoryModelBase, cls).__new__(cls, name, bases, attrs)
+class SharedMemoryModelBase(ModelBase):
+    # CL: upstream had a __new__ method that skipped ModelBase's __new__ if
+    # SharedMemoryModelBase was not in the model class's ancestors. It's not
+    # clear what was the intended purpose, but skipping ModelBase.__new__
+    # broke things; in particular, default manager inheritance.
 
     def __call__(cls, *args, **kwargs):
         """
@@ -39,20 +39,15 @@ class SharedMemoryModelBase(ModelBase):
         return cached_instance
 
 
-class SouthWorkaround(object):
-    abstract = True
-    local_fields = []
-    local_many_to_many = []
-    parents = {}
-    abstract_managers = []
-    virtual_fields = []
-
-
 class SharedMemoryModel(Model):
-    # XXX: this is creating a model and it shouldn't be.. how do we properly
-    # subclass now?
+    # CL: setting abstract correctly to allow subclasses to inherit the default
+    # manager.
     __metaclass__ = SharedMemoryModelBase
-    _meta = SouthWorkaround()
+
+    objects = SharedMemoryManager()
+
+    class Meta:
+        abstract = True
 
     def _get_cache_key(cls, args, kwargs):
         """
@@ -113,7 +108,10 @@ class SharedMemoryModel(Model):
     cache_instance = classmethod(cache_instance)
 
     def _flush_cached_by_key(cls, key):
-        del _tls.idmapper_cache[cls][key]
+        try:
+            del _tls.idmapper_cache[cls][key]
+        except KeyError:
+            pass
     _flush_cached_by_key = classmethod(_flush_cached_by_key)
 
     def flush_cached_instance(cls, instance):
@@ -124,24 +122,28 @@ class SharedMemoryModel(Model):
         cls._flush_cached_by_key(instance._get_pk_val())
     flush_cached_instance = classmethod(flush_cached_instance)
 
+    def flush_instance_cache(cls):
+        if not hasattr(_tls, 'idmapper_cache'):
+            _tls.idmapper_cache = {}
+        _tls.idmapper_cache[cls] = WeakValueDictionary()
+    flush_instance_cache = classmethod(flush_instance_cache)
+
     def save(self, *args, **kwargs):
         super(SharedMemoryModel, self).save(*args, **kwargs)
         self.__class__.cache_instance(self)
 
-    # TODO: This needs moved to the prepare stage (I believe?)
-    objects = SharedMemoryManager()
-
-from django.db.models.signals import pre_delete
 
 # Use a signal so we make sure to catch cascades.
-def flush_singleton_cache(sender, instance, **kwargs):
-    # XXX: Is this the best way to make sure we can flush?
-    if isinstance(instance, SharedMemoryModel):
-        instance.__class__.flush_cached_instance(instance)
-pre_delete.connect(flush_singleton_cache)
+def flush_cache(**kwargs):
+    for model in SharedMemoryModel.__subclasses__():
+        model.flush_instance_cache()
+request_finished.connect(flush_cache)
+post_syncdb.connect(flush_cache)
 
-# XXX: It's to be determined if we should use this or not.
-# def update_singleton_cache(sender, instance, **kwargs):
-#     if isinstance(instance.__class__, SharedMemoryModel):
-#          instance.__class__.cache_instance(instance)
-# post_save.connect(flush_singleton_cache)
+
+def flush_cached_instance(sender, instance, **kwargs):
+    # XXX: Is this the best way to make sure we can flush?
+    if not hasattr(instance, 'flush_cached_instance'):
+        return
+    sender.flush_cached_instance(instance)
+pre_delete.connect(flush_cached_instance)
