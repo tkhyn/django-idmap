@@ -1,12 +1,15 @@
 from weakref import WeakValueDictionary
+import threading
 
 from django.core.signals import request_finished
 from django.db.models.base import Model, ModelBase
 from django.db.models.signals import pre_delete, post_syncdb
 
 from manager import SharedMemoryManager
-from idmapper import _tls
 
+# thread local storage for instances cache
+_tls = threading.local()
+_tls.idmapper_cache = {}
 
 
 class SharedMemoryModelBase(ModelBase):
@@ -96,9 +99,6 @@ class SharedMemoryModel(Model):
         Method to store an instance in the cache.
         """
         if instance._get_pk_val() is not None:
-            if not hasattr(_tls, 'idmapper_cache'):
-                _tls.idmapper_cache = {}
-
             if not cls in _tls.idmapper_cache:
                 _tls.idmapper_cache[cls] = WeakValueDictionary()
 
@@ -122,15 +122,12 @@ class SharedMemoryModel(Model):
     flush_cached_instance = classmethod(flush_cached_instance)
 
     def flush_instance_cache(cls):
-        if not hasattr(_tls, 'idmapper_cache'):
-            _tls.idmapper_cache = {}
         _tls.idmapper_cache[cls] = WeakValueDictionary()
     flush_instance_cache = classmethod(flush_instance_cache)
 
     def save(self, *args, **kwargs):
         super(SharedMemoryModel, self).save(*args, **kwargs)
         self.__class__.cache_instance(self)
-
 
 # Use a signal so we make sure to catch cascades.
 def flush_cache(**kwargs):
