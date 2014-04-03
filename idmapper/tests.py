@@ -65,6 +65,5 @@ class SharedMemorysTest(TestCase):
         article = Article.objects.all()[0:1].get()
         pk = article.pk
         article.delete()
-        self.assertEquals(pk not in Article.__instance_cache__, True)
-        
-        
+        self.assertIsNone(Article.get_cached_instance(pk))
+

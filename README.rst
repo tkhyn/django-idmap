@@ -1,13 +1,3 @@
-This fork of django-idmapper fixes some bugs that prevented the idmapper from
-being used in many instances. In particular, the caching manager is now inherited
-by SharedMemoryManager subclasses, and it is used when Django uses an automatic
-manager (see http://docs.djangoproject.com/en/dev/topics/db/managers/#controlling-automatic-manager-types). This means access through foreign keys now uses
-identity mapping.
-
-Tested with Django version 1.2 alpha 1 SVN-12375.
-
-My modifications are usually accompanied by comments marked with "CL:".
-
 Django Identity Mapper
 ======================
 
@@ -20,7 +10,7 @@ Usage
 To use the shared memory model you simply need to inherit from it (instead of models.Model). This enable all queries (and relational queries) to this model to use the shared memory instance cache, effectively creating a single instance for each unique row (based on primary key) in the queryset.
 
 For example, if you want to simply mark all of your models as a SharedMemoryModel, you might as well just import it as models.
-::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 	from idmapper import models
 
@@ -28,7 +18,7 @@ For example, if you want to simply mark all of your models as a SharedMemoryMode
 	    name = models.CharField(...)
 
 Because the system is isolated, you may mix and match SharedMemoryModels with regular Models. The module idmapper.models imports everything from django.db.models and only adds SharedMemoryModel, so you can simply replace your import of models from django.db.
-::
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 	from idmapper import models
 

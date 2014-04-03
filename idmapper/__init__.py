@@ -1,6 +1,9 @@
 import os.path
 import warnings
 
+import threading
+
+_tls = threading.local()
 __version__ = (0, 2)
 
 def _get_git_revision(path):
@@ -39,3 +42,6 @@ def lazy_object(location):
     return inner
 
 SharedMemoryModel = lazy_object('idmapper.models.SharedMemoryModel')
+
+def flush_cache():
+    _tls.idmapper_cache = {}

@@ -2,10 +2,11 @@ from weakref import WeakValueDictionary
 
 from django.core.signals import request_finished
 from django.db.models.base import Model, ModelBase
-from django.db.models.signals import post_save, pre_delete, \
-  post_syncdb
+from django.db.models.signals import pre_delete, post_syncdb
 
 from manager import SharedMemoryManager
+from idmapper import _tls
+
 
 
 class SharedMemoryModelBase(ModelBase):
@@ -35,10 +36,6 @@ class SharedMemoryModelBase(ModelBase):
             cls.cache_instance(cached_instance)
 
         return cached_instance
-
-    def _prepare(cls):
-        cls.__instance_cache__ = WeakValueDictionary()
-        super(SharedMemoryModelBase, cls)._prepare()
 
 
 class SharedMemoryModel(Model):
@@ -81,13 +78,17 @@ class SharedMemoryModel(Model):
         return result
     _get_cache_key = classmethod(_get_cache_key)
 
-    def get_cached_instance(cls, id):
+    def get_cached_instance(cls, id_):
         """
         Method to retrieve a cached instance by pk value. Returns None when not found
         (which will always be the case when caching is disabled for this class). Please
         note that the lookup will be done even when instance caching is disabled.
         """
-        return cls.__instance_cache__.get(id)
+        if not hasattr(_tls, 'idmapper_cache'):
+            return None
+
+        return _tls.idmapper_cache.get(cls, {}).get(id_)
+
     get_cached_instance = classmethod(get_cached_instance)
 
     def cache_instance(cls, instance):
@@ -95,12 +96,19 @@ class SharedMemoryModel(Model):
         Method to store an instance in the cache.
         """
         if instance._get_pk_val() is not None:
-            cls.__instance_cache__[instance._get_pk_val()] = instance
+            if not hasattr(_tls, 'idmapper_cache'):
+                _tls.idmapper_cache = {}
+
+            if not cls in _tls.idmapper_cache:
+                _tls.idmapper_cache[cls] = WeakValueDictionary()
+
+            _tls.idmapper_cache[cls][instance._get_pk_val()] = instance
+
     cache_instance = classmethod(cache_instance)
 
     def _flush_cached_by_key(cls, key):
         try:
-            del cls.__instance_cache__[key]
+            del _tls.idmapper_cache[cls][key]
         except KeyError:
             pass
     _flush_cached_by_key = classmethod(_flush_cached_by_key)
@@ -114,8 +122,14 @@ class SharedMemoryModel(Model):
     flush_cached_instance = classmethod(flush_cached_instance)
 
     def flush_instance_cache(cls):
-        cls.__instance_cache__ = WeakValueDictionary()
+        if not hasattr(_tls, 'idmapper_cache'):
+            _tls.idmapper_cache = {}
+        _tls.idmapper_cache[cls] = WeakValueDictionary()
     flush_instance_cache = classmethod(flush_instance_cache)
+
+    def save(self, *args, **kwargs):
+        super(SharedMemoryModel, self).save(*args, **kwargs)
+        self.__class__.cache_instance(self)
 
 
 # Use a signal so we make sure to catch cascades.
@@ -132,10 +146,3 @@ def flush_cached_instance(sender, instance, **kwargs):
         return
     sender.flush_cached_instance(instance)
 pre_delete.connect(flush_cached_instance)
-
-
-def update_cached_instance(sender, instance, **kwargs):
-    if not hasattr(instance, 'cache_instance'):
-        return
-    sender.cache_instance(instance)
-post_save.connect(update_cached_instance)
