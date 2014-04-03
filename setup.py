@@ -30,7 +30,7 @@ metadata = dict(
     author='David Cramer',
     author_email='dcramer@gmail.com',
     url='http://github.com/dcramer/django-idmapper',
-    description = 'An identify mapper for the Django ORM',
+    description='An identify mapper for the Django ORM',
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',

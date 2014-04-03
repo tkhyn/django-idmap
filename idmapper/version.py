@@ -5,9 +5,10 @@ __version_info__ = (0, 2, 1, 'beta', 0)
 
 import subprocess
 
+
 def get_version(version=__version_info__):
 
-    dev_st = {'alpha':'a', 'beta':'b', 'rc':'c', 'final':''}
+    dev_st = {'alpha': 'a', 'beta': 'b', 'rc': 'c', 'final': ''}
 
     assert len(version) == 5
     assert version[3] in dev_st.keys()

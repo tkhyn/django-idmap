@@ -13,48 +13,47 @@ _tls.idmapper_cache = {}
 
 
 class SharedMemoryModelBase(ModelBase):
-    # CL: upstream had a __new__ method that skipped ModelBase's __new__ if
-    # SharedMemoryModelBase was not in the model class's ancestors. It's not
-    # clear what was the intended purpose, but skipping ModelBase.__new__
-    # broke things; in particular, default manager inheritance.
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(self, *args, **kwargs):
         """
-        this method will either create an instance (by calling the default implementation)
-        or try to retrieve one from the class-wide cache by infering the pk value from
-        args and kwargs. If instance caching is enabled for this class, the cache is
-        populated whenever possible (ie when it is possible to infer the pk value).
+        This method will either create an instance (by calling the default
+        implementation) or try to retrieve one from the class-wide cache by
+        infering the pk value from args and kwargs. If instance caching is
+        enabled for this class, the cache is populated whenever possible
+        (ie when it is possible to infer the pk value).
         """
+
         def new_instance():
-            return super(SharedMemoryModelBase, cls).__call__(*args, **kwargs)
+            return super(SharedMemoryModelBase, self).__call__(*args, **kwargs)
 
-        instance_key = cls._get_cache_key(args, kwargs)
-        # depending on the arguments, we might not be able to infer the PK, so in that case we create a new instance
+        instance_key = self._get_cache_key(args, kwargs)
+        # depending on the arguments, we might not be able to infer the PK
+        # in that case, we create a new instance
         if instance_key is None:
             return new_instance()
 
-        cached_instance = cls.get_cached_instance(instance_key)
+        cached_instance = self.get_cached_instance(instance_key)
         if cached_instance is None:
             cached_instance = new_instance()
-            cls.cache_instance(cached_instance)
+            self.cache_instance(cached_instance)
 
         return cached_instance
 
 
 class SharedMemoryModel(Model):
-    # CL: setting abstract correctly to allow subclasses to inherit the default
-    # manager.
-    __metaclass__ = SharedMemoryModelBase
 
+    __metaclass__ = SharedMemoryModelBase
     objects = SharedMemoryManager()
 
     class Meta:
         abstract = True
 
+    @classmethod
     def _get_cache_key(cls, args, kwargs):
         """
-        This method is used by the caching subsystem to infer the PK value from the constructor arguments.
-        It is used to decide if an instance has to be built or is already in the cache.
+        This method is used by the caching subsystem to infer the PK value
+        from the constructor arguments. It is used to decide if an instance
+        has to be built or is already in the cache.
         """
         result = None
         # Quick hack for my composites work for now.
@@ -62,38 +61,42 @@ class SharedMemoryModel(Model):
             pk = cls._meta.pks[0]
         else:
             pk = cls._meta.pk
-        # get the index of the pk in the class fields. this should be calculated *once*, but isn't atm
+        # get the index of the pk in the class fields. this only needs to be
+        # calculated *once*, but isn't at the moment
+        # TODO: calculate pk_position only once
         pk_position = cls._meta.fields.index(pk)
         if len(args) > pk_position:
             # if it's in the args, we can get it easily by index
             result = args[pk_position]
         elif pk.attname in kwargs:
-            # retrieve the pk value. Note that we use attname instead of name, to handle the case where the pk is a
+            # retrieve the pk value. Note that we use attname instead of name,
+            # to handle the case where the pk is a
             # a ForeignKey.
             result = kwargs[pk.attname]
         elif pk.name != pk.attname and pk.name in kwargs:
-            # ok we couldn't find the value, but maybe it's a FK and we can find the corresponding object instead
+            # ok we couldn't find the value, but maybe it's a FK and we can
+            # find the corresponding object instead
             result = kwargs[pk.name]
 
         if result is not None and isinstance(result, Model):
-            # if the pk value happens to be a model instance (which can happen wich a FK), we'd rather use its own pk as the key
+            # if the pk value happens to be a model instance (which can
+            # happen with a FK), we'd rather use its own pk as the key
             result = result._get_pk_val()
         return result
-    _get_cache_key = classmethod(_get_cache_key)
 
+    @classmethod
     def get_cached_instance(cls, id_):
         """
-        Method to retrieve a cached instance by pk value. Returns None when not found
-        (which will always be the case when caching is disabled for this class). Please
-        note that the lookup will be done even when instance caching is disabled.
+        Method to retrieve a cached instance by pk value. Returns None when
+        not found (which will always be the case when caching is disabled for
+        this class). Please note that the lookup will be done even when
+        instance caching is disabled.
         """
         if not hasattr(_tls, 'idmapper_cache'):
             return None
-
         return _tls.idmapper_cache.get(cls, {}).get(id_)
 
-    get_cached_instance = classmethod(get_cached_instance)
-
+    @classmethod
     def cache_instance(cls, instance):
         """
         Method to store an instance in the cache.
@@ -104,32 +107,37 @@ class SharedMemoryModel(Model):
 
             _tls.idmapper_cache[cls][instance._get_pk_val()] = instance
 
-    cache_instance = classmethod(cache_instance)
-
+    @classmethod
     def _flush_cached_by_key(cls, key):
         try:
             del _tls.idmapper_cache[cls][key]
         except KeyError:
             pass
-    _flush_cached_by_key = classmethod(_flush_cached_by_key)
 
+    @classmethod
     def flush_cached_instance(cls, instance):
         """
-        Method to flush an instance from the cache. The instance will always be flushed from the cache,
-        since this is most likely called from delete(), and we want to make sure we don't cache dead objects.
+        Method to flush an instance from the cache. The instance will always
+        be flushed from the cache, since this is most likely called from
+        delete(), and we want to make sure we don't cache dead objects.
         """
         cls._flush_cached_by_key(instance._get_pk_val())
-    flush_cached_instance = classmethod(flush_cached_instance)
 
+    @classmethod
     def flush_instance_cache(cls):
         _tls.idmapper_cache[cls] = WeakValueDictionary()
-    flush_instance_cache = classmethod(flush_instance_cache)
 
     def save(self, *args, **kwargs):
+        """
+        Caches the instance on save
+        """
         super(SharedMemoryModel, self).save(*args, **kwargs)
         self.__class__.cache_instance(self)
 
-# Use a signal so we make sure to catch cascades.
+
+# Use signals to make sure to catch cascades.
+
+# Flush cache after syncdb
 def flush_cache(**kwargs):
     for model in SharedMemoryModel.__subclasses__():
         model.flush_instance_cache()
@@ -137,6 +145,7 @@ request_finished.connect(flush_cache)
 post_syncdb.connect(flush_cache)
 
 
+# Remove instance from cache upon deletion
 def flush_cached_instance(sender, instance, **kwargs):
     # XXX: Is this the best way to make sure we can flush?
     if not hasattr(instance, 'flush_cached_instance'):
