@@ -29,10 +29,10 @@ class SharedMemoryModelBase(ModelBase):
         if instance_key is None:
             return new_instance()
 
-        # cached_instance = cls.get_cached_instance(instance_key)
-        # if cached_instance is None:
-        cached_instance = new_instance()
-        cls.cache_instance(cached_instance)
+        cached_instance = cls.get_cached_instance(instance_key)
+        if cached_instance is None:
+            cached_instance = new_instance()
+            cls.cache_instance(cached_instance)
 
         return cached_instance
 
