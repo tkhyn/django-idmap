@@ -71,7 +71,7 @@ With strong references, the model will be loaded only once from the database,
 until it is explicitly erased from the cache.
 
 You may want to use the functions or class methods:
-- `idmapper.base.flush_cache()` to erase the whole cache
+- `idmapper.flush_cache()` to erase the whole cache
 - `SharedMemoryModel.flush_instance_cache()` to erase the cache for one class
 - `SharedMemoryModel.flush_cached_instance(instance)` to erase one instance
    from the cache

@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from models import Article, SubArticle, Category, RegularCategory
-from idmapper.base import flush_cache
+from idmapper import flush_cache
 
 
 class SubclassesTests(TestCase):
