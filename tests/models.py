@@ -20,3 +20,7 @@ class RegularArticle(models.Model):
     name = models.CharField(max_length=32)
     category = models.ForeignKey(Category)
     category2 = models.ForeignKey(RegularCategory)
+
+
+class SubArticle(Article):
+    pass

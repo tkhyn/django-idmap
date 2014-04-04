@@ -137,8 +137,11 @@ class SharedMemoryModel(Model):
         cls._flush_cached_by_key(instance._get_pk_val())
 
     @classmethod
-    def flush_instance_cache(cls):
+    def flush_instance_cache(cls, flush_sub=False):
         cls._init_instance_cache()
+        if flush_sub:
+            for s in cls.__subclasses__():
+                s.flush_instance_cache(flush_sub=flush_sub)
 
     def save(self, *args, **kwargs):
         """
@@ -153,7 +156,7 @@ class SharedMemoryModel(Model):
 # Flush cache after syncdb
 def flush_cache(**kwargs):
     for model in SharedMemoryModel.__subclasses__():
-        model.flush_instance_cache()
+        model.flush_instance_cache(flush_sub=True)
 request_finished.connect(flush_cache)
 post_syncdb.connect(flush_cache)
 

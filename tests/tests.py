@@ -1,2 +1,3 @@
 from test_weakrefs import SharedMemoryWeakRefsTests
 from test_strongrefs import SharedMemoryStrongRefsTests
+from test_subclasses import SubclassesTests
