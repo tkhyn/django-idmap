@@ -23,6 +23,10 @@ You can chose between 2 caching modes:
 - Strong references mode: the instance will only be removed from the cache when
   it is flushed
 
+Note that django-idmapper clears the cache when the `request_finished` or
+`post_syncdb` signal is sent. This default behavior can be modified by
+disconnecting the flush_cache function from these signals.
+
 
 Examples
 --------
