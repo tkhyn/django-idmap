@@ -41,9 +41,18 @@ class SharedMemoryModelBase(ModelBase):
 
 
 class SharedMemoryModel(Model):
+    """
+    Abstract class to derive any shared memory model from
+
+    :ivar use_strong_refs: should one use strong refs or not for instances.
+        False by default. If True, instances will be kept in the cache until
+        explicitly flushed
+    """
 
     __metaclass__ = SharedMemoryModelBase
     objects = SharedMemoryManager()
+
+    use_strong_refs = False
 
     class Meta:
         abstract = True
@@ -97,14 +106,18 @@ class SharedMemoryModel(Model):
         return _tls.idmapper_cache.get(cls, {}).get(id_)
 
     @classmethod
+    def _init_instance_cache(cls):
+        new_cache = {} if cls.use_strong_refs else WeakValueDictionary()
+        _tls.idmapper_cache[cls] = new_cache
+
+    @classmethod
     def cache_instance(cls, instance):
         """
         Method to store an instance in the cache.
         """
         if instance._get_pk_val() is not None:
             if not cls in _tls.idmapper_cache:
-                _tls.idmapper_cache[cls] = WeakValueDictionary()
-
+                cls._init_instance_cache()
             _tls.idmapper_cache[cls][instance._get_pk_val()] = instance
 
     @classmethod
@@ -125,7 +138,7 @@ class SharedMemoryModel(Model):
 
     @classmethod
     def flush_instance_cache(cls):
-        _tls.idmapper_cache[cls] = WeakValueDictionary()
+        cls._init_instance_cache()
 
     def save(self, *args, **kwargs):
         """
