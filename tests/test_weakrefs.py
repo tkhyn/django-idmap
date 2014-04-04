@@ -50,7 +50,7 @@ class SharedMemoryWeakRefsTests(TestCase):
 
     def testObjectDeletion(self):
         # This must executed first so its guaranteed to be in memory.
-        list(Article.objects.all().select_related('category'))
+        article_list = list(Article.objects.all().select_related('category'))
 
         article = Article.objects.all()[0:1].get()
         pk = article.pk
