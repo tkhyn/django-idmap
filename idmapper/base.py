@@ -64,23 +64,28 @@ class SharedMemoryModel(Model):
         from the constructor arguments. It is used to decide if an instance
         has to be built or is already in the cache.
         """
+
         result = None
         # Quick hack for my composites work for now.
         if hasattr(cls._meta, 'pks'):
             pk = cls._meta.pks[0]
         else:
             pk = cls._meta.pk
-        # get the index of the pk in the class fields. this only needs to be
-        # calculated *once*, but isn't at the moment
-        # TODO: calculate pk_position only once
-        pk_position = cls._meta.fields.index(pk)
+
+        pk_position = getattr(cls._meta, 'pk_pos', None)
+        if pk_position is None:
+            # the pk position could not be extracted from _meta
+            # calculate it ...
+            pk_position = cls._meta.fields.index(pk)
+            # ... and store it
+            setattr(cls._meta, 'pk_pos', pk_position)
+
         if len(args) > pk_position:
             # if it's in the args, we can get it easily by index
             result = args[pk_position]
         elif pk.attname in kwargs:
             # retrieve the pk value. Note that we use attname instead of name,
-            # to handle the case where the pk is a
-            # a ForeignKey.
+            # to handle the case where the pk is a ForeignKey.
             result = kwargs[pk.attname]
         elif pk.name != pk.attname and pk.name in kwargs:
             # ok we couldn't find the value, but maybe it's a FK and we can
