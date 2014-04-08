@@ -58,7 +58,7 @@ your import of models from django.db.
         name = models.CharField(...)
 
 If you want to use strong references for a particular model, simply set
-`use_strong_refs` to `True` in the derived model class.
+``use_strong_refs`` to ``True`` in the derived model class.
 
 ::
    from idmapper import models
@@ -71,9 +71,9 @@ With strong references, the model will be loaded only once from the database,
 until it is explicitly erased from the cache.
 
 You may want to use the functions or class methods:
-- `idmapper.flush_cache()` to erase the whole cache
-- `SharedMemoryModel.flush_instance_cache()` to erase the cache for one class
-- `SharedMemoryModel.flush_cached_instance(instance)` to erase one instance
+- ``idmapper.flush_cache()`` to erase the whole cache
+- ``SharedMemoryModel.flush_instance_cache()`` to erase the cache for one class
+- ``SharedMemoryModel.flush_cached_instance(instance)`` to erase one instance
    from the cache
 
 References
