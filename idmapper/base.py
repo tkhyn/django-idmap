@@ -1,15 +1,11 @@
-from weakref import WeakValueDictionary
-import threading
-
 from django.core.signals import request_finished
 from django.db.models.base import Model, ModelBase
 from django.db.models.signals import pre_delete, post_syncdb
 
 from manager import SharedMemoryManager
 
-# thread local storage for instances cache
-_tls = threading.local()
-_tls.idmapper_cache = {}
+import tls  # thread local storage
+tls.init_idmapper()
 
 
 class SharedMemoryModelBase(ModelBase):
@@ -99,36 +95,32 @@ class SharedMemoryModel(Model):
         return result
 
     @classmethod
-    def get_cached_instance(cls, id_):
+    def get_cached_instance(cls, pk):
         """
         Method to retrieve a cached instance by pk value. Returns None when
         not found (which will always be the case when caching is disabled for
         this class). Please note that the lookup will be done even when
         instance caching is disabled.
         """
-        if not hasattr(_tls, 'idmapper_cache'):
-            return None
-        return _tls.idmapper_cache.get(cls, {}).get(id_)
+        return tls.get_cached_instance(cls, pk)
 
     @classmethod
     def _init_instance_cache(cls):
-        new_cache = {} if cls.use_strong_refs else WeakValueDictionary()
-        _tls.idmapper_cache[cls] = new_cache
+        tls.create_cache(cls, reset=True)
 
     @classmethod
     def cache_instance(cls, instance):
         """
         Method to store an instance in the cache.
         """
-        if instance._get_pk_val() is not None:
-            if not cls in _tls.idmapper_cache:
-                cls._init_instance_cache()
-            _tls.idmapper_cache[cls][instance._get_pk_val()] = instance
+        pk = instance._get_pk_val()
+        if pk is not None:
+            tls.cache_instance(cls, instance, pk)
 
     @classmethod
     def _flush_cached_by_key(cls, key):
         try:
-            del _tls.idmapper_cache[cls][key]
+            tls.flush_cache_key(cls, key)
         except KeyError:
             pass
 
