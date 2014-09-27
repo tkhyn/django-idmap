@@ -1,4 +1,4 @@
-from idmapper.models import SharedMemoryModel
+from idmap.models import SharedMemoryModel
 from django.db import models
 
 

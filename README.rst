@@ -1,5 +1,7 @@
-Django Identity Mapper
-======================
+django-idmap
+============
+
+An identity mapper for the Django ORM.
 
 A pluggable Django application which allows you to explicitally mark your
 models to use an identity mapping pattern. This will share instances of the
@@ -23,7 +25,7 @@ You can chose between 2 caching modes:
 - Strong references mode: the instance will only be removed from the cache when
   it is flushed
 
-Note that django-idmapper clears the cache when the ``request_finished`` or
+Note that django-idmap clears the cache when the ``request_finished`` or
 ``post_syncdb`` signal is sent. This default behavior can be modified by
 disconnecting the flush_cache function from these signals.
 
@@ -36,19 +38,19 @@ as well just import it as models.
 
 ::
 
-    from idmapper import models
+    from idmap import models
 
     class MyModel(models.SharedMemoryModel):
         name = models.CharField(...)
 
 Because the system is isolated, you may mix and match SharedMemoryModels
-with regular Models. The module idmapper.models imports everything from
+with regular Models. The module idmap.models imports everything from
 django.db.models and only adds SharedMemoryModel, so you can simply replace
 your import of models from django.db.
 
 ::
 
-    from idmapper import models
+    from idmap import models
 
     class MyModel(models.SharedMemoryModel):
         name = models.CharField(...)
@@ -62,7 +64,7 @@ If you want to use strong references for a particular model, simply set
 
 ::
 
-   from idmapper import models
+   from idmap import models
 
    class MyModel(models.SharedMemoryModel):
       use_strong_refs = True
@@ -73,7 +75,7 @@ until it is explicitly erased from the cache.
 
 You may want to use the functions or class methods:
 
-- ``idmapper.flush_cache()`` to erase the whole cache
+- ``idmap.flush_cache()`` to erase the whole cache
 - ``SharedMemoryModel.flush_instance_cache()`` to erase the cache for one class
 - ``SharedMemoryModel.flush_cached_instance(instance)`` to erase one instance from
   the cache

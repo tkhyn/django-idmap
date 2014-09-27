@@ -5,7 +5,7 @@ from django.db.models.signals import pre_delete, post_syncdb
 from manager import SharedMemoryManager
 
 import tls  # thread local storage
-tls.init_idmapper()
+tls.init_idmap()
 
 
 class SharedMemoryModelBase(ModelBase):

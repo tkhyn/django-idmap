@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from models import Category, RegularCategory, Article, RegularArticle
-from idmapper import flush_cache
+from idmap import flush_cache
 
 
 class SharedMemoryWeakRefsTests(TestCase):

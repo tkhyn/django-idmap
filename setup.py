@@ -3,7 +3,7 @@
 from distutils.core import setup
 import os
 
-INC_PACKAGES = 'idmapper',  # string or tuple of strings
+INC_PACKAGES = 'idmap',  # string or tuple of strings
 EXC_PACKAGES = ()  # tuple of strings
 
 install_requires = (
@@ -12,7 +12,7 @@ install_requires = (
 
 
 # imports __version__ and __version_info__ without importing module
-exec(open('idmapper/version.py').read())
+exec(open('idmap/version.py').read())
 dev_status = __version_info__[3]
 
 if dev_status == 'alpha' and not __version_info__[4]:
@@ -25,11 +25,11 @@ DEV_STATUS = {'pre': '2 - Pre-Alpha',
               'final': '5 - Production/Stable'}
 
 metadata = dict(
-    name='django-idmapper',
+    name='django-idmap',
     version=__version__,
     author='David Cramer',
     author_email='dcramer@gmail.com',
-    url='http://github.com/dcramer/django-idmapper',
+    url='http://github.com/dcramer/django-idmap',
     description='An identify mapper for the Django ORM',
     classifiers=[
         'Programming Language :: Python',
