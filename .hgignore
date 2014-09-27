@@ -1,9 +1,14 @@
 syntax: glob
-.pydevproject
-.project
-*.pyc
-.installed.cfg
-_buildout
-MANIFEST
+
+# distutils folders
+build
 dist
-django_idmapper.egg-info
+*.egg-info
+MANIFEST
+
+# buildout
+.installed.cfg
+bin
+
+# python binaries
+*.pyc
