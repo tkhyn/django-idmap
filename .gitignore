@@ -1,4 +1,0 @@
-*.pyc
-/build
-/dist
-/django_idmapper.egg-info
