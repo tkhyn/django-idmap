@@ -1,6 +1,6 @@
 from django.db.models.manager import Manager
 
-from queryset import SharedMemoryQuerySet
+from .queryset import SharedMemoryQuerySet
 
 
 class SharedMemoryManager(Manager):

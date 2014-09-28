@@ -2,9 +2,9 @@ from django.core.signals import request_finished
 from django.db.models.base import Model, ModelBase
 from django.db.models.signals import pre_delete, post_syncdb
 
-from manager import SharedMemoryManager
+from .manager import SharedMemoryManager
 
-import tls  # thread local storage
+from . import tls  # thread local storage
 tls.init_idmap()
 
 

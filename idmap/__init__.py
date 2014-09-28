@@ -1,3 +1,3 @@
-from version import __version__, __version_info__
+from .version import __version__, __version_info__
 
-from base import flush_cache
+from .base import flush_cache

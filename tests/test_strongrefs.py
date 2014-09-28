@@ -1,4 +1,4 @@
-from models import Category, Article
+from .models import Category, Article
 from . import test_weakrefs
 
 
