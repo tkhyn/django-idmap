@@ -89,10 +89,11 @@ You may want to use the functions or class methods:
 - ``SharedMemoryModel.flush_cached_instance(instance)`` to erase one instance
   from the cache
 
+
 References
 ----------
 
-D Cramer's django-idmapper_
+David Cramer's django-idmapper_
 
 Original code and concept: http://code.djangoproject.com/ticket/17
 
