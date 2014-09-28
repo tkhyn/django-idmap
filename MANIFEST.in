@@ -1,2 +1,2 @@
-include README.rst LICENSE.txt
+include README.rst LICENSE.txt CHANGES.rst
 recursive-exclude tests *
