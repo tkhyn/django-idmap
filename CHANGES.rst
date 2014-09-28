@@ -2,7 +2,7 @@ django-idmap - changes
 ======================
 
 
-v0.3dev
+v0.3rc1
 -------
 
 Added:
