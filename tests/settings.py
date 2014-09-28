@@ -9,12 +9,11 @@ DATABASES = {
 }
 
 INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.admin',
     'idmap',
+    'django_nose',
     'tests',
 )
+
+MIDDLEWARE_CLASSES = ()  # so that Django 1.7 does not complain
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
