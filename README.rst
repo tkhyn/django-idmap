@@ -70,12 +70,13 @@ You may mix and match SharedMemoryModels with regular Models::
         name = models.CharField(...)
 
 If you want to use strong references for a particular model, simply set
-``use_strong_refs`` to ``True`` in the derived model class::
+``use_strong_refs`` to ``True`` in the derived model class ``Meta`` options::
 
    from idmap import models
 
    class MyModel(models.SharedMemoryModel):
-      use_strong_refs = True
+      class Meta:
+         use_strong_refs = True
       [...]
 
 With strong references, the model will be loaded only once from the database,

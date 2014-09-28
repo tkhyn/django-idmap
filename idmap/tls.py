@@ -21,7 +21,8 @@ def create_cache(cls, reset=False):
     elif not reset and cls in idm_cache:
         # the class exists in the cache, nothing to do
         return idm_cache[cls]
-    new_cache = {} if cls.use_strong_refs else WeakValueDictionary()
+    new_cache = {} if getattr(cls._meta, 'use_strong_refs', False) \
+                else WeakValueDictionary()
     _tls.idmap_cache[cls] = new_cache
     return new_cache
 
