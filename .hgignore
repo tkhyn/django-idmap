@@ -6,6 +6,9 @@ dist
 *.egg-info
 MANIFEST
 
+# tox
+.tox
+
 # buildout
 .installed.cfg
 bin
