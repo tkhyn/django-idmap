@@ -1,6 +1,7 @@
 from django.core.signals import request_finished
 from django.db.models.base import Model, ModelBase
 from django.db.models.signals import pre_delete, post_syncdb
+from django.utils import six
 
 from .manager import SharedMemoryManager
 
@@ -36,7 +37,7 @@ class SharedMemoryModelBase(ModelBase):
         return cached_instance
 
 
-class SharedMemoryModel(Model):
+class SharedMemoryModel(six.with_metaclass(SharedMemoryModelBase, Model)):
     """
     Abstract class to derive any shared memory model from
 
@@ -45,7 +46,6 @@ class SharedMemoryModel(Model):
         explicitly flushed
     """
 
-    __metaclass__ = SharedMemoryModelBase
     objects = SharedMemoryManager()
 
     use_strong_refs = False
