@@ -1,4 +1,5 @@
 DEBUG = True
+SECRET_KEY = 'secret'
 
 DATABASES = {
     'default': {
@@ -15,3 +16,5 @@ INSTALLED_APPS = (
     'idmap',
     'tests',
 )
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

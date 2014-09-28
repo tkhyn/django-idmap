@@ -1,8 +1,8 @@
 from models import Category, Article
-from test_weakrefs import SharedMemoryWeakRefsTests
+from . import test_weakrefs
 
 
-class SharedMemoryStrongRefsTests(SharedMemoryWeakRefsTests):
+class SharedMemoryStrongRefsTests(test_weakrefs.SharedMemoryWeakRefsTests):
     # derives from tests with weak refs
     # all tests should pass except SharedToRegular, where the expected
     # result is the contrary
