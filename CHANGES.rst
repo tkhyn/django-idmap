@@ -2,8 +2,8 @@ django-idmap - changes
 ======================
 
 
-v0.3rc1
--------
+v0.3 (06-10-2014)
+-----------------
 
 Added:
 - use_strong_refs option
