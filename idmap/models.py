@@ -13,9 +13,15 @@ tls.init_idmap()
 class SharedMemoryModel(base_class):
     """
     Abstract class to derive any shared memory model from
+
+    :ivar use_strong_refs: should one use strong refs or not for instances.
+        False by default. If True, instances will be kept in the cache until
+        explicitly flushed
     """
 
     objects = SharedMemoryManager()
+
+    use_strong_refs = False
 
     class Meta:
         # does not inherit from base_class.Meta but that's not an issue
