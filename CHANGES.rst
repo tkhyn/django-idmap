@@ -2,6 +2,24 @@ django-idmap - changes
 ======================
 
 
+v0.3.2 (21-11-2014)
+-------------------
+
+Fixed:
+- Where clause issue on Django 1.4, 1.5 and 1.7
+
+Added:
+- already loaded instance are searched even after hitting the database, e.g.
+  when making a query on non-pk parameters, for the sake of id consistency
+
+
+v0.3.1 (06-10-2014)
+-------------------
+
+Fixed:
+- use_strong_refs option bug
+
+
 v0.3 (06-10-2014)
 -----------------
 
