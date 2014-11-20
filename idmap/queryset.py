@@ -45,4 +45,12 @@ class SharedMemoryQuerySet(QuerySet):
         if instance is None:
             instance = super(SharedMemoryQuerySet, self).get(**kwargs)
 
+            # gets the pk of the retrieved object, and if it exists in the
+            # cache, returns the cached instance
+            # This enables object retrieved from 2 different ways (e.g directly
+            # and through a relation) to share the same instance in memory.
+            cached_instance = self.model.get_cached_instance(instance.pk)
+            if cached_instance is not None:
+                return cached_instance
+
         return instance
