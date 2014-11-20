@@ -1,4 +1,5 @@
 from django.db.models.query import QuerySet
+from django.utils import six
 
 
 class SharedMemoryQuerySet(QuerySet):
@@ -16,15 +17,28 @@ class SharedMemoryQuerySet(QuerySet):
 
         # This is an exact lookup for the pk only -> kwargs.values()[0]
         # is the pk
-        if len(kwargs) == 1 and kwargs.keys()[0] in pk_interceptions:
+        if len(kwargs) == 1 and next(six.iterkeys(kwargs)) in pk_interceptions:
             instance = self.model.get_cached_instance(kwargs.values()[0])
 
         where_children = self.query.where.children
 
         if len(where_children) == 1:
-            [(field, lookup_type, __, param)] = where_children
+            try:
+                # Django 1.7+
+                where_child = where_children[0]
+                col = where_child.lhs.target.column
+                lookup_type = where_child.lookup_name
+                param = where_child.rhs
+            except AttributeError:
+                # in Django 1.6, where_child is the tuple we're after, in 1.4
+                # and 1.5, we need to get to the 'children' attribute
+                try:
+                    field, lookup_type, __, param = where_child
+                except TypeError:
+                    field, lookup_type, __, param = where_child.children[0]
+                col = field.col
 
-            if field.col in ('pk', pk_attr) and lookup_type == 'exact':
+            if col in ('pk', pk_attr) and lookup_type == 'exact':
                 instance = self.model.get_cached_instance(param)
 
         # The cache missed or was not applicable, hit the database!
