@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.utils import six
 
-from .models import Category, RegularCategory, Article, RegularArticle
+from .app.models import Category, RegularCategory, Article, RegularArticle
 from idmap import flush_cache
 
 

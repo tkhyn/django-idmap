@@ -11,7 +11,7 @@ DATABASES = {
 INSTALLED_APPS = (
     'idmap',
     'django_nose',
-    'tests',
+    'tests.app',
 )
 
 MIDDLEWARE_CLASSES = ()  # so that Django 1.7 does not complain
