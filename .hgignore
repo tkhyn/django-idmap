@@ -11,6 +11,7 @@ MANIFEST
 
 # buildout
 .installed.cfg
+.mr.developer.cfg
 bin
 
 # python binaries
