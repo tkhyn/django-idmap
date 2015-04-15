@@ -1,6 +1,9 @@
 django-idmap
 ============
 
+|copyright| 2014-2015 Thomas Khyn
+|copyright| 2009 David Cramer
+
 An identity mapper for the Django ORM. This is a fork of django-idmapper_,
 which is no longer maintained.
 
@@ -98,4 +101,5 @@ David Cramer's django-idmapper_
 
 Original code and concept: http://code.djangoproject.com/ticket/17
 
+.. |copyright| unicode:: 0xA9
 .. _django-idmapper: https://github.com/dcramer/django-idmapper
