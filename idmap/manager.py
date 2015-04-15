@@ -7,5 +7,8 @@ class SharedMemoryManager(Manager):
 
     use_for_related_fields = True
 
-    def get_query_set(self):
+    def get_queryset(self):
         return SharedMemoryQuerySet(self.model, using=self._db)
+
+    def get_query_set(self):
+        return self.get_queryset()
