@@ -20,16 +20,22 @@ class MultiDBTests(TestCase):
         Category.multi_db = False  # back to default
 
     def test_multi_db(self):
+        Category.objects.create(pk=1, name='Category on default')
         Category.objects.using('db1').create(pk=1, name='Category on db1')
         Category.objects.using('db2').create(pk=1, name='Category on db2')
 
+        c0 = Category.objects.get(pk=1)
         c1 = Category.objects.using('db1').get(pk=1)
         c2 = Category.objects.using('db2').get(pk=1)
 
+        self.assertEqual(c0.name, 'Category on default')
         self.assertEqual(c1.name, 'Category on db1')
         self.assertEqual(c2.name, 'Category on db2')
 
+        self.assertEqual(c0._state.db, 'default')
         self.assertEqual(c1._state.db, 'db1')
         self.assertEqual(c2._state.db, 'db2')
 
+        self.assertIsNot(c0, c2)
+        self.assertIsNot(c0, c2)
         self.assertIsNot(c1, c2)
