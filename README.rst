@@ -7,11 +7,14 @@ django-idmap
 An identity mapper for the Django ORM. This is a fork of django-idmapper_,
 which is no longer maintained.
 
+``django-idmap`` works with django 1.8+ and supported python versions (2.7,
+3.3, 3.4)
+
 
 What is it?
 -----------
 
-django-idmap is a Django application which:
+``django-idmap`` is a Django application which:
 - loads only once the instances in memory the first time they are needed
 - share them througout your interpreter until the request is finished
 
@@ -23,8 +26,6 @@ to access the same database object in another place in your code.
 .. warning::
    Deserialization (such as from the cache) will *not* use the identity mapper.
 
-Works with django 1.4 to 1.8 and matching python versions (2.6 to 3.4).
-
 
 Installation
 ------------
@@ -33,15 +34,16 @@ As straightforward as it can be, using pip::
 
    pip install django-idmap
 
-You then need to add ``'idmap'`` to your ``INSTALLED_APPS``.
+As ``django-idmap`` does not expose any ``Model`` nor management command, you
+do not need to add it to your ``INSTALLED_APPS`` setting.
 
 
 Usage
 -----
 
 To use the exposed shared memory model you simply need to inherit from it
-(instead of models.Model). This enable all queries (and relational queries) to
-this model to use the shared memory instance cache, effectively creating a
+(instead of ``models.Model``). This enable all queries (and relational queries)
+to this model to use the shared memory instance cache, effectively creating a
 single instance for each unique row (based on primary key) in the queryset.
 
 You can chose between 2 caching modes:
@@ -51,7 +53,7 @@ You can chose between 2 caching modes:
 - Strong references mode: the instance will only be removed from the cache when
   it is flushed
 
-Note that django-idmap clears the cache when the ``request_finished`` or
+Note that ``django-idmap`` clears the cache when the ``request_finished`` or
 ``post_syncdb`` signal is sent. This default behavior can be modified by
 disconnecting the exposed ``idmap.flush_cache`` function from these signals.
 
@@ -92,6 +94,29 @@ You may want to use the functions or class methods:
 - ``SharedMemoryModel.flush_instance_cache()`` to erase the cache for one model
 - ``SharedMemoryModel.flush_cached_instance(instance)`` to erase one instance
   from the cache
+
+
+Multiple database support (new in version 1.0)
+----------------------------------------------
+
+In some cases, you may need to store instances of the same model in several
+databases. It is possible to tell ``django-idmap`` to also take the database
+into account when creating or getting instances::
+
+   class MyModel(models.SharedMemoryModel):
+      multi_db = True
+      [...]
+
+This way, ``instance1_1`` with primary key ``1`` in database ``db1`` will be
+different from ``instance2_1`` with primary key ``1`` in database ``db2``::
+
+   >>> MyModel.objects.using('db1').create(pk=1)
+   >>> MyModel.objects.using('db2').create(pk=1)
+   >>> idmap.flush_cache()
+   >>> instance1_1 = MyModel.objects.using('db1').get(pk=1)
+   >>> instance2_1 = MyModel.objects.using('db2').get(pk=1)
+   >>> assert instance1_1 is instance 2_1
+   AssertionError
 
 
 References
