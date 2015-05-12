@@ -40,23 +40,25 @@ def cache_instance(cls, instance):
 
 
 def get_cached_instance(cls, pk, db=None):
+    cache = get_cache(cls)
     try:
         if cls.multi_db:
             assert db is not None, \
                 'A database should be provided to retrieve an instance of a ' \
                 'model having multi_db=True'
-            return _tls.idmap_cache[cls][db][pk]
+            return cache[db][pk]
         else:
-            return _tls.idmap_cache[cls][pk]
+            return cache[pk]
     except KeyError:
         return None
 
 
 def flush_cached_instance(cls, instance):
+    cache = get_cache(cls)
     try:
         if cls.multi_db:
-            del _tls.idmap_cache[cls][instance._state.db][instance.pk]
+            del cache[instance._state.db][instance.pk]
         else:
-            del _tls.idmap_cache[cls][instance.pk]
+            del cache[instance.pk]
     except KeyError:
         pass
