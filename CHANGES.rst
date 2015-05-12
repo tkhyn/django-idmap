@@ -2,6 +2,16 @@ django-idmap - changes
 ======================
 
 
+v1.0 (dev)
+----------
+
+Added:
+- Support of multiple databases for one model
+
+Dropped:
+- Dropping support for django < 1.8
+
+
 v0.3 (06-10-2014)
 -----------------
 

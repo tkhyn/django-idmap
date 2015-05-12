@@ -1,6 +1,6 @@
 # defines __version__ from __version_info__
 
-__version_info__ = (0, 4, 0, 'alpha', 0)
+__version_info__ = (1, 0, 0, 'beta', 0)
 
 
 import subprocess
