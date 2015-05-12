@@ -18,7 +18,8 @@ class SharedMemoryQuerySet(QuerySet):
         # This is an exact lookup for the pk only -> kwargs.values()[0]
         # is the pk
         if len(kwargs) == 1 and next(six.iterkeys(kwargs)) in pk_interceptions:
-            instance = self.model.get_cached_instance(kwargs.values()[0])
+            instance = self.model.get_cached_instance(kwargs.values()[0],
+                                                      db=self._db)
 
         where_children = self.query.where.children
 
@@ -39,7 +40,7 @@ class SharedMemoryQuerySet(QuerySet):
                 col = field.col
 
             if col in ('pk', pk_attr) and lookup_type == 'exact':
-                instance = self.model.get_cached_instance(param)
+                instance = self.model.get_cached_instance(param, self._db)
 
         # The cache missed or was not applicable, hit the database!
         if instance is None:
@@ -49,7 +50,8 @@ class SharedMemoryQuerySet(QuerySet):
             # cache, returns the cached instance
             # This enables object retrieved from 2 different ways (e.g directly
             # and through a relation) to share the same instance in memory.
-            cached_instance = self.model.get_cached_instance(instance.pk)
+            cached_instance = self.model.get_cached_instance(instance.pk,
+                                                             self._db)
             if cached_instance is not None:
                 return cached_instance
 

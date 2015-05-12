@@ -1,16 +1,14 @@
-from django.db.models import *
+from django.db import models
 
 from django.core.signals import request_finished
 from django.db.models.signals import pre_delete, post_syncdb
 
 from .manager import SharedMemoryManager
-from .compat import base_class
 
 from . import tls  # thread local storage
-tls.init_idmap()
 
 
-class SharedMemoryModel(base_class):
+class SharedMemoryModel(models.Model):
     """
     Abstract class to derive any shared memory model from
 
@@ -22,10 +20,50 @@ class SharedMemoryModel(base_class):
     objects = SharedMemoryManager()
 
     use_strong_refs = False
+    multi_db = False
 
     class Meta:
         # does not inherit from base_class.Meta but that's not an issue
         abstract = True
+
+    # OVERRIDES
+
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        """
+        This method will either create an instance (by calling the default
+        implementation) or try to retrieve one from the class-wide cache by
+        infering the pk value from args and kwargs. The cache is then populated
+        whenever possible (ie when it is possible to infer the pk value).
+        """
+        if cls._deferred:
+            args = ()
+            kwargs = dict(zip(field_names, values))
+        else:
+            args = values
+            kwargs = {}
+        instance_key = cls._get_cache_key(args, kwargs)
+
+        def create_instance():
+            inst = cls(*args, **kwargs)
+            cls.cache_instance(inst)
+            inst._state.adding = False
+            inst._state.db = db
+            return inst
+
+        # depending on the arguments, we might not be able to infer the PK
+        # in that case, we create a new instance
+        if instance_key is None:
+            return create_instance()
+        else:
+            instance = cls.get_cached_instance(instance_key, db)
+            if instance is None:
+                return create_instance()
+            else:
+                return instance
+
+
+    # DJANGO-IDMAP METHODS
 
     @classmethod
     def _get_cache_key(cls, args, kwargs):
@@ -62,25 +100,21 @@ class SharedMemoryModel(base_class):
             # find the corresponding object instead
             result = kwargs[pk.name]
 
-        if result is not None and isinstance(result, Model):
+        if result is not None and isinstance(result, models.Model):
             # if the pk value happens to be a model instance (which can
             # happen with a FK), we'd rather use its own pk as the key
             result = result._get_pk_val()
         return result
 
     @classmethod
-    def get_cached_instance(cls, pk):
+    def get_cached_instance(cls, pk, db=None):
         """
-        Method to retrieve a cached instance by pk value. Returns None when
-        not found (which will always be the case when caching is disabled for
-        this class). Please note that the lookup will be done even when
+        Method to retrieve a cached instance by pk value and db. Returns None
+        when not found (which will always be the case when caching is disabled
+        for this class). Please note that the lookup will be done even when
         instance caching is disabled.
         """
-        return tls.get_cached_instance(cls, pk)
-
-    @classmethod
-    def _init_instance_cache(cls):
-        tls.create_cache(cls, reset=True)
+        return tls.get_cached_instance(cls, pk, db)
 
     @classmethod
     def cache_instance(cls, instance):
@@ -89,14 +123,7 @@ class SharedMemoryModel(base_class):
         """
         pk = instance._get_pk_val()
         if pk is not None:
-            tls.cache_instance(cls, instance, pk)
-
-    @classmethod
-    def _flush_cached_by_key(cls, key):
-        try:
-            tls.flush_cache_key(cls, key)
-        except KeyError:
-            pass
+            tls.cache_instance(cls, instance)
 
     @classmethod
     def flush_cached_instance(cls, instance):
@@ -105,11 +132,11 @@ class SharedMemoryModel(base_class):
         be flushed from the cache, since this is most likely called from
         delete(), and we want to make sure we don't cache dead objects.
         """
-        cls._flush_cached_by_key(instance._get_pk_val())
+        tls.flush_cached_instance(cls, instance)
 
     @classmethod
     def flush_instance_cache(cls, flush_sub=False):
-        cls._init_instance_cache()
+        tls.get_cache(cls, reset=True)
         if flush_sub:
             for s in cls.__subclasses__():
                 s.flush_instance_cache(flush_sub=flush_sub)
