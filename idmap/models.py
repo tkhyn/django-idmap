@@ -46,9 +46,9 @@ class SharedMemoryModel(models.Model):
 
         def create_instance():
             inst = cls(*args, **kwargs)
-            cls.cache_instance(inst)
             inst._state.adding = False
             inst._state.db = db
+            cls.cache_instance(inst)
             return inst
 
         # depending on the arguments, we might not be able to infer the PK
