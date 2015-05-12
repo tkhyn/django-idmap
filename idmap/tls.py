@@ -9,11 +9,12 @@ from collections import defaultdict
 
 _tls = threading.local()
 
-_tls.idmap_cache = defaultdict(dict)
-
 
 def get_cache(cls, reset=False):
-    cls_dict = _tls.idmap_cache
+    try:
+        cls_dict = _tls.idmap_cache
+    except AttributeError:
+        _tls.idmap_cache = cls_dict = defaultdict(dict)
 
     if not reset:
         try:
