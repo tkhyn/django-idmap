@@ -1,14 +1,15 @@
-from django.test import TestCase
 from django.utils import six
 
-from .app.models import Article, SubArticle, Category, RegularCategory
 from idmap import flush_cache
+
+from .app.models import Article, SubArticle, Category, RegularCategory
+
+from ._base import TestCase
 
 
 class SubclassesTests(TestCase):
 
     def setUp(self):
-        flush_cache()
         category = Category.objects.create(name="Category")
         regcategory = RegularCategory.objects.create(name="RegCategory")
 

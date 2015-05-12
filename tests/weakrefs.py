@@ -1,14 +1,13 @@
-from django.test import TestCase
 from django.utils import six
 
 from .app.models import Category, RegularCategory, Article, RegularArticle
-from idmap import flush_cache
+
+from ._base import TestCase
 
 
 class SharedMemoryWeakRefsTests(TestCase):
 
     def setUp(self):
-        flush_cache()
         n = 0
         category = Category.objects.create(name="Category %d" % (n,))
         regcategory = RegularCategory.objects.create(name="Category %d" % (n,))

@@ -1,6 +1,6 @@
-from django.test import TestCase
-
 from .app.models import Category
+
+from ._base import TestCase
 
 
 class MultiDBTests(TestCase):
@@ -11,10 +11,12 @@ class MultiDBTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(MultiDBTests, cls).setUpClass()
         Category.multi_db = True
 
     @classmethod
     def tearDownClass(cls):
+        super(MultiDBTests, cls).tearDownClass()
         Category.multi_db = False  # back to default
 
     def test_multi_db(self):
