@@ -16,19 +16,18 @@ def get_cache(cls, reset=False):
     except AttributeError:
         _tls.idmap_cache = cls_dict = defaultdict(dict)
 
-    if not reset:
-        try:
-            return cls_dict[cls]
-        except KeyError:
-            pass
+    # using defaultdict.get does not create the key if it does not exist
+    cache = cls_dict.get(cls)
+    if not reset and cache is not None:
+        return cache
 
     new_cache_func = dict if cls.use_strong_refs else WeakValueDictionary
     if cls.multi_db:
-        new_cache = defaultdict(new_cache_func)
+        cache = defaultdict(new_cache_func)
     else:
-        new_cache = new_cache_func()
-    cls_dict[cls] = new_cache
-    return new_cache
+        cache = new_cache_func()
+    cls_dict[cls] = cache
+    return cache
 
 
 def cache_instance(cls, instance):
