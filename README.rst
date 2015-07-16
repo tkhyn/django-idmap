@@ -12,6 +12,7 @@ What is it?
 -----------
 
 django-idmap is a Django application which:
+
 - loads only once the instances in memory the first time they are needed
 - share them througout your interpreter until the request is finished
 
@@ -21,6 +22,7 @@ main consequence: the temporary attributes you may set are lost if you want
 to access the same database object in another place in your code.
 
 .. warning::
+
    Deserialization (such as from the cache) will *not* use the identity mapper.
 
 Works with django 1.4 to 1.8 and matching python versions (2.6 to 3.4).
