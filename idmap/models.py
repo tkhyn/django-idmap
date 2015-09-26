@@ -1,7 +1,5 @@
+import django
 from django.db import models
-
-from django.core.signals import request_finished
-from django.db.models.signals import pre_delete, post_syncdb
 
 from .manager import SharedMemoryManager
 
@@ -148,21 +146,5 @@ class SharedMemoryModel(models.Model):
         super(SharedMemoryModel, self).save(*args, **kwargs)
         self.__class__.cache_instance(self)
 
-
-# Use signals to make sure to catch cascades.
-
-# Flush cache after syncdb
-def flush_cache(**kwargs):
-    for model in SharedMemoryModel.__subclasses__():
-        model.flush_instance_cache(flush_sub=True)
-request_finished.connect(flush_cache)
-post_syncdb.connect(flush_cache)
-
-
-# Remove instance from cache upon deletion
-def flush_cached_instance(sender, instance, **kwargs):
-    # XXX: Is this the best way to make sure we can flush?
-    if not hasattr(instance, 'flush_cached_instance'):
-        return
-    sender.flush_cached_instance(instance)
-pre_delete.connect(flush_cached_instance)
+if django.VERSION < (1, 7):
+    from .import signals
