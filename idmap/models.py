@@ -1,4 +1,3 @@
-import django
 from django.db import models
 
 from .manager import SharedMemoryManager
@@ -145,6 +144,3 @@ class SharedMemoryModel(models.Model):
         """
         super(SharedMemoryModel, self).save(*args, **kwargs)
         self.__class__.cache_instance(self)
-
-if django.VERSION < (1, 7):
-    from .import signals

@@ -48,6 +48,6 @@ setup(
     ],
     packages=find_packages(exclude=('tests',)),
     install_requires=(
-      'django>=1.4',
+      'Django>=1.4',
     ),
 )

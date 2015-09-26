@@ -9,6 +9,3 @@ class SharedMemoryManager(Manager):
 
     def get_queryset(self):
         return SharedMemoryQuerySet(self.model, using=self._db)
-
-    def get_query_set(self):
-        return self.get_queryset()
