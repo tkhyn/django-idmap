@@ -25,14 +25,14 @@ def get_cache(cls, flush=False):
     # reset = None or True => clear all caches from all dbs
     # reset = database name => clear only this database's cache
     new_cache_func = dict if cls.use_strong_refs else WeakValueDictionary
-    if flush in (None, True) or not cls.multi_db:
+    if flush in (None, True) or cache is None or not cls.multi_db:
         if cls.multi_db:
             cache = defaultdict(new_cache_func)
         else:
             cache = new_cache_func()
         cls_dict[cls] = cache
     else:
-        # cls.multi_db is True
+        # flush is true, cls.multi_db is True and cache is not None
         cache[flush] = new_cache_func()
     return cache
 
