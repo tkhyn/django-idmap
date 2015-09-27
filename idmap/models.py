@@ -1,11 +1,11 @@
-from django.db import models
+from django.db.models import *
 
 from .manager import SharedMemoryManager
 
 from . import tls  # thread local storage
 
 
-class SharedMemoryModel(models.Model):
+class SharedMemoryModel(Model):
     """
     Abstract class to derive any shared memory model from
 
@@ -97,7 +97,7 @@ class SharedMemoryModel(models.Model):
             # find the corresponding object instead
             result = kwargs[pk.name]
 
-        if result is not None and isinstance(result, models.Model):
+        if result is not None and isinstance(result, Model):
             # if the pk value happens to be a model instance (which can
             # happen with a FK), we'd rather use its own pk as the key
             result = result._get_pk_val()
