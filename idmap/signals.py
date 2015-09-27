@@ -5,13 +5,13 @@ migrate / syncdb and instance deletion, and to make sure to catch cascades
 
 from django.dispatch import receiver
 from django.core.signals import request_finished
-from django.db.models.signals import pre_delete, post_syncdb
+from django.db.models.signals import pre_delete, post_migrate
 
 
-@receiver((post_syncdb, request_finished))
+@receiver((post_migrate, request_finished))
 def flush_cache(**kwargs):
     """
-    Flushes the idmap cache on migrate / syncdb and on request end
+    Flushes the idmap cache on migrate and on request end
     """
     from .models import SharedMemoryModel
     for model in SharedMemoryModel.__subclasses__():
