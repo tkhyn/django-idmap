@@ -7,20 +7,18 @@ from django.dispatch import Signal, receiver
 from django.core.signals import request_finished
 from django.db.models.signals import pre_delete, post_migrate
 
-pre_flush_idmap = Signal()
-post_flush_idmap = Signal()
+
+pre_flush_idmap = Signal(providing_args=['using'])
+post_flush_idmap = Signal(providing_args=['using'])
 
 
 @receiver((post_migrate, request_finished))
-def flush_cache(**kwargs):
+def flush_idmap(using=None, **kwargs):
     """
     Flushes the idmap cache on migrate and on request end
     """
-    from .models import SharedMemoryModel
-    pre_flush_idmap.send(None)
-    for model in SharedMemoryModel.__subclasses__():
-        model.flush_instance_cache(flush_sub=True)
-    post_flush_idmap.send(None)
+    from .functions import flush
+    flush(db=using)
 
 
 @receiver(pre_delete)

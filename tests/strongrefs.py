@@ -25,7 +25,7 @@ class SharedMemoryStrongRefsTests(SharedMemoryWeakRefsTests):
         # the expected result is that the category objects are the same
         # indeed, the reference to the articles is not weak anymore and they
         # are kept in memory after setUp. They are only erased when calling
-        # flush_cache
+        # flush
 
         article_list = Article.objects.all().select_related('category')
         last_article = article_list[0]

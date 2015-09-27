@@ -132,11 +132,11 @@ class SharedMemoryModel(models.Model):
         tls.flush_cached_instance(cls, instance)
 
     @classmethod
-    def flush_instance_cache(cls, flush_sub=False):
-        tls.get_cache(cls, reset=True)
+    def flush_instance_cache(cls, db=None, flush_sub=False):
+        tls.get_cache(cls, flush=db)
         if flush_sub:
             for s in cls.__subclasses__():
-                s.flush_instance_cache(flush_sub=flush_sub)
+                s.flush_instance_cache(db, flush_sub)
 
     def save(self, *args, **kwargs):
         """

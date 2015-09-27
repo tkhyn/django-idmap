@@ -10,7 +10,7 @@ from collections import defaultdict
 _tls = threading.local()
 
 
-def get_cache(cls, reset=False):
+def get_cache(cls, flush=False):
     try:
         cls_dict = _tls.idmap_cache
     except AttributeError:
@@ -18,15 +18,22 @@ def get_cache(cls, reset=False):
 
     # using defaultdict.get does not create the key if it does not exist
     cache = cls_dict.get(cls)
-    if not reset and cache is not None:
+    if flush is False and cache is not None:
         return cache
 
+    # reset is not False
+    # reset = None or True => clear all caches from all dbs
+    # reset = database name => clear only this database's cache
     new_cache_func = dict if cls.use_strong_refs else WeakValueDictionary
-    if cls.multi_db:
-        cache = defaultdict(new_cache_func)
+    if flush in (None, True) or not cls.multi_db:
+        if cls.multi_db:
+            cache = defaultdict(new_cache_func)
+        else:
+            cache = new_cache_func()
+        cls_dict[cls] = cache
     else:
-        cache = new_cache_func()
-    cls_dict[cls] = cache
+        # cls.multi_db is True
+        cache[flush] = new_cache_func()
     return cache
 
 

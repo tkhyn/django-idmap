@@ -1,6 +1,6 @@
 from django.utils import six
 
-from idmap import flush_cache
+from idmap import flush
 
 from .app.models import Article, SubArticle, Category, RegularCategory
 
@@ -48,7 +48,7 @@ class SubclassesTests(TestCase):
         sub_pks = [sa.pk for sa in SubArticle.objects.all()]
 
         # should flush Article and SubArticle's caches
-        flush_cache()
+        flush()
 
         for pk in sub_pks:
             self.assertIsNone(SubArticle.get_cached_instance(pk))
