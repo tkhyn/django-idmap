@@ -8,8 +8,8 @@ from django.core.signals import request_finished
 from django.db.models.signals import pre_delete, post_migrate
 
 
-pre_flush_idmap = Signal(providing_args=['using'])
-post_flush_idmap = Signal(providing_args=['using'])
+pre_flush = Signal(providing_args=['using'])
+post_flush = Signal(providing_args=['using'])
 
 
 @receiver((post_migrate, request_finished))
