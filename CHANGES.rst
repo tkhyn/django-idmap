@@ -7,9 +7,12 @@ v1.0 (dev)
 
 Added:
 - Support of multiple databases for one model
+- Renames ``flush_cache`` function to ``flush``
+- ``pre_flush`` and ``post_flush`` signals
+- Support for Django 1.9 and Python 3.5
 
 Dropped:
-- Dropping support for django < 1.8
+- Dropping support for Django < 1.8
 
 
 v0.3 (06-10-2014)
