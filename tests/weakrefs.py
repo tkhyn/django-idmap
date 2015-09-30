@@ -5,7 +5,7 @@ from .app.models import Category, RegularCategory, Article, RegularArticle
 from ._base import TestCase
 
 
-class SharedMemoryWeakRefsTests(TestCase):
+class IdMapWeakRefsTests(TestCase):
 
     def setUp(self):
         n = 0
@@ -20,7 +20,7 @@ class SharedMemoryWeakRefsTests(TestCase):
                                           category=category,
                                           category2=regcategory)
 
-    def testSharedMemoryReferences(self):
+    def testCachedReferences(self):
         article_list = Article.objects.all().select_related('category')
         last_article = article_list[0]
         for article in article_list[1:]:
@@ -34,14 +34,14 @@ class SharedMemoryWeakRefsTests(TestCase):
             self.assertIsNot(article.category2, last_article.category2)
             last_article = article
 
-    def testRegularToShared(self):
+    def testRegularToCached(self):
         article_list = RegularArticle.objects.all().select_related('category')
         last_article = article_list[0]
         for article in article_list[1:]:
             self.assertIs(article.category, last_article.category)
             last_article = article
 
-    def testSharedToRegular(self):
+    def testCachedToRegular(self):
         article_list = Article.objects.all().select_related('category')
         last_article = article_list[0]
         for article in article_list[1:]:

@@ -26,6 +26,6 @@ def flush_cached_instance(sender, instance, **kwargs):
     """
     Flushes a deleted instance from the idmap cache
     """
-    from .models import SharedMemoryModel
-    if issubclass(sender, SharedMemoryModel):
+    from .models import IdMapModel
+    if issubclass(sender, IdMapModel):
         sender.flush_cached_instance(instance)

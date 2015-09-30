@@ -2,7 +2,7 @@ from django.db.models.query import QuerySet
 from django.utils import six
 
 
-class SharedMemoryQuerySet(QuerySet):
+class IdMapQuerySet(QuerySet):
 
     def get(self, **kwargs):
         instance = None
@@ -45,7 +45,7 @@ class SharedMemoryQuerySet(QuerySet):
 
         # The cache missed or was not applicable, hit the database!
         if instance is None:
-            instance = super(SharedMemoryQuerySet, self).get(**kwargs)
+            instance = super(IdMapQuerySet, self).get(**kwargs)
 
             # gets the pk of the retrieved object, and if it exists in the
             # cache, returns the cached instance

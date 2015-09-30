@@ -1,20 +1,20 @@
 from django.db.models import *
 
-from .manager import SharedMemoryManager
+from .manager import IdMapManager
 
 from . import tls  # thread local storage
 
 
-class SharedMemoryModel(Model):
+class IdMapModel(Model):
     """
-    Abstract class to derive any shared memory model from
+    Abstract class to derive any idmap-enabled model from
 
     :ivar use_strong_refs: should one use strong refs or not for instances.
         False by default. If True, instances will be kept in the cache until
         explicitly flushed
     """
 
-    objects = SharedMemoryManager()
+    objects = IdMapManager()
 
     use_strong_refs = False
     multi_db = False
@@ -142,5 +142,5 @@ class SharedMemoryModel(Model):
         """
         Caches the instance on save
         """
-        super(SharedMemoryModel, self).save(*args, **kwargs)
+        super(IdMapModel, self).save(*args, **kwargs)
         self.__class__.cache_instance(self)

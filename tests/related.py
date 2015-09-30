@@ -7,7 +7,7 @@ from ._base import TestCase
 
 class GetRelatedTestsBase(TestCase):
     """
-    Getter tests to check the behaviour of SharedMemoryQuerySet.get
+    Getter tests to check the behaviour of IdMapQuerySet.get
     when a 'where' clause is present (when using a related manager)
     """
 

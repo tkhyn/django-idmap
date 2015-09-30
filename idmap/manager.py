@@ -1,8 +1,8 @@
 from django.db.models.manager import BaseManager
 
-from .queryset import SharedMemoryQuerySet
+from .queryset import IdMapQuerySet
 
 
-class SharedMemoryManager(BaseManager.from_queryset(SharedMemoryQuerySet)):
+class IdMapManager(BaseManager.from_queryset(IdMapQuerySet)):
 
     use_for_related_fields = True

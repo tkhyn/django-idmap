@@ -46,17 +46,17 @@ You also need to add ``'idmap'`` to the ``INSTALLED_APPS`` setting.
 Quick start
 -----------
 
-To enable the identity mapper for a model, you simply need to make it inherit from ``idmap.models.SharedMemoryModel`` instead of ``django.db.models.Model``.
+To enable the identity mapper for a model, you simply need to make it inherit from ``idmap.models.IdMapModel`` instead of ``django.db.models.Model``.
 
 .. tip::
 
-   You can import ``idmap.models`` as you would import ``django.db.models``. ``idmap.models`` exposes all that is exposed by ``django.db.models`` plus the ``SharedMemoryModel`` model class.
+   You can import ``idmap.models`` as you would import ``django.db.models``. ``idmap.models`` exposes all that is exposed by ``django.db.models`` plus the ``IdMapModel`` model class.
 
-You may of course mix and match ``SharedMemoryModel`` and ``Model``::
+You may of course mix and match ``IdMapModel`` and ``Model``::
 
     from idmap import models
 
-    class MyModel(models.SharedMemoryModel):
+    class MyModel(models.IdMapModel):
         name = models.CharField(...)
         fkey = models.ForeignKey('Other')
 
@@ -74,7 +74,7 @@ If you want to use strong references for a particular model, simply set
 
    from idmap import models
 
-   class MyModel(models.SharedMemoryModel):
+   class MyModel(models.IdMapModel):
       use_strong_refs = True
       [...]
 
@@ -88,8 +88,8 @@ need to flush the cache manually before the request is finished.
 You can use:
 
 - ``idmap.flush()`` to erase the whole cache
-- ``SharedMemoryModel.flush_instance_cache()`` to erase the cache for one model
-- ``SharedMemoryModel.flush_cached_instance(instance)`` to erase one instance
+- ``IdMapModel.flush_instance_cache()`` to erase the cache for one model
+- ``IdMapModel.flush_cached_instance(instance)`` to erase one instance
   from the cache
 
 Signals
@@ -112,7 +112,7 @@ In some cases, you may need to store instances of the same model in several
 databases. It is possible to tell ``django-idmap`` to also take the database
 into account when creating or getting instances::
 
-   class MyModel(models.SharedMemoryModel):
+   class MyModel(models.IdMapModel):
       multi_db = True
       [...]
 
@@ -131,7 +131,7 @@ When using multiple databases, you may also flush only one database by providing
 
    >>> idmap.flush('db1')
 
-will only flush instances that were retrieved using the database ``db1``. ``SharedMemoryModel.flush_instance_cache`` can also take a ``db`` argument.
+will only flush instances that were retrieved using the database ``db1``. ``IdMapModel.flush_instance_cache`` can also take a ``db`` argument.
 
 Similarly, a keyword-argument ``db`` is provided when the ``pre_flush`` and ``post_flush`` signals are sent. ``db`` is ``None`` if all databases are flushed (i.e. if no database alias was provided).
 
