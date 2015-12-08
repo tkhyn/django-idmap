@@ -1,16 +1,16 @@
-from django.db.models import *
+from django.db import models
+from django.utils import six
 
 from django.core.signals import request_finished
 from django.db.models.signals import pre_delete, post_syncdb
 
 from .manager import SharedMemoryManager
-from .compat import base_class
 
 from . import tls  # thread local storage
 tls.init_idmap()
 
 
-class SharedMemoryModel(base_class):
+class SharedMemoryModel(six.with_metaclass(SharedMemoryModelBase, models.Model)):
     """
     Abstract class to derive any shared memory model from
 
@@ -62,7 +62,7 @@ class SharedMemoryModel(base_class):
             # find the corresponding object instead
             result = kwargs[pk.name]
 
-        if result is not None and isinstance(result, Model):
+        if result is not None and isinstance(result, models.Model):
             # if the pk value happens to be a model instance (which can
             # happen with a FK), we'd rather use its own pk as the key
             result = result._get_pk_val()
