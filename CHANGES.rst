@@ -11,8 +11,15 @@ Added:
 - ``pre_flush`` and ``post_flush`` signals
 - Support for Django 1.9 and Python 3.5
 
-Dropped:
-- Dropping support for Django < 1.8
+
+v0.4 (09-12-2015)
+-----------------
+
+Added:
+- Django 1.9 support
+
+Removed:
+- Django < 1.8 support (may still work with 1.7)
 
 
 v0.3 (06-10-2014)

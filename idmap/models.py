@@ -1,11 +1,10 @@
-from django.db.models import *
+from django.db import models
 
 from .manager import IdMapManager
-
 from . import tls  # thread local storage
 
 
-class IdMapModel(Model):
+class IdMapModel(models.Model):
     """
     Abstract class to derive any idmap-enabled model from
 
@@ -97,7 +96,7 @@ class IdMapModel(Model):
             # find the corresponding object instead
             result = kwargs[pk.name]
 
-        if result is not None and isinstance(result, Model):
+        if result is not None and isinstance(result, models.Model):
             # if the pk value happens to be a model instance (which can
             # happen with a FK), we'd rather use its own pk as the key
             result = result._get_pk_val()

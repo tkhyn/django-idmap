@@ -25,20 +25,10 @@ class IdMapQuerySet(QuerySet):
         where_children = self.query.where.children
 
         if len(where_children) == 1:
-            try:
-                # Django 1.7+
-                where_child = where_children[0]
-                col = where_child.lhs.target.column
-                lookup_type = where_child.lookup_name
-                param = where_child.rhs
-            except AttributeError:
-                # in Django 1.6, where_child is the tuple we're after, in 1.4
-                # and 1.5, we need to get to the 'children' attribute
-                try:
-                    field, lookup_type, __, param = where_child
-                except TypeError:
-                    field, lookup_type, __, param = where_child.children[0]
-                col = field.col
+            where_child = where_children[0]
+            col = where_child.lhs.target.column
+            lookup_type = where_child.lookup_name
+            param = where_child.rhs
 
             if col in ('pk', pk_attr) and lookup_type == 'exact':
                 instance = self.model.get_cached_instance(param, db)

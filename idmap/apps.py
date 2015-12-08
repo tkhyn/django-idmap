@@ -6,4 +6,5 @@ class IdMapConfig(AppConfig):
     verbose_name = 'Django identity mapper'
 
     def ready(self):
+
         from . import signals

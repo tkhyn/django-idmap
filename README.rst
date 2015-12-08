@@ -30,8 +30,10 @@ main consequence: the temporary attributes you may set are lost if you want
 to access the same database object in another place in your code.
 
 .. warning::
+
    Deserialization (such as from the cache) will *not* use the identity mapper.
 
+Tested with django 1.8+ and latest minor versions of python 2 and 3.
 
 Installation
 ------------

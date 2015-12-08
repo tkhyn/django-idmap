@@ -22,6 +22,6 @@ INSTALLED_APPS = (
     'tests.app',
 )
 
-MIDDLEWARE_CLASSES = ()  # so that Django 1.7 does not complain
+MIDDLEWARE_CLASSES = ()
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
