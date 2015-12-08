@@ -25,7 +25,7 @@ to access the same database object in another place in your code.
 
    Deserialization (such as from the cache) will *not* use the identity mapper.
 
-Works with django 1.4 to 1.8 and matching python versions (2.6 to 3.4).
+Tested with django 1.8+ and latest minor versions of python 2 and 3.
 
 
 Installation
