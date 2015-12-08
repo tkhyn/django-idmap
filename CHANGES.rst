@@ -2,6 +2,16 @@ django-idmap - changes
 ======================
 
 
+v0.4 (09-12-2015)
+-----------------
+
+Added:
+- Django 1.9 support
+
+Removed:
+- Django < 1.8 support (may still work with 1.7)
+
+
 v0.3 (06-10-2014)
 -----------------
 
