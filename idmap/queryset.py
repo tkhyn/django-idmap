@@ -18,7 +18,8 @@ class SharedMemoryQuerySet(QuerySet):
         # This is an exact lookup for the pk only -> kwargs.values()[0]
         # is the pk
         if len(kwargs) == 1 and next(six.iterkeys(kwargs)) in pk_interceptions:
-            instance = self.model.get_cached_instance(kwargs.values()[0])
+            instance = self.model.get_cached_instance(
+                next(six.itervalues(kwargs)))
 
         where_children = self.query.where.children
 
