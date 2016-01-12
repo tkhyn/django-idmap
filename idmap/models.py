@@ -118,4 +118,3 @@ class SharedMemoryModel(six.with_metaclass(SharedMemoryModelBase, models.Model))
         """
         super(SharedMemoryModel, self).save(*args, **kwargs)
         self.__class__.cache_instance(self)
-
