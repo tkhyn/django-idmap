@@ -1,31 +1,31 @@
 from .app.models import Category, Article
-from .weakrefs import SharedMemoryWeakRefsTests
+from .weakrefs import IdMapWeakRefsTests
 
 
-class SharedMemoryStrongRefsTests(SharedMemoryWeakRefsTests):
+class IdMapStrongRefsTests(IdMapWeakRefsTests):
     # derives from tests with weak refs
-    # all tests should pass except SharedToRegular, where the expected
+    # all tests should pass except CachedToRegular, where the expected
     # result is the contrary
 
     @classmethod
     def setUpClass(cls):
         Category.use_strong_refs = True
         Article.use_strong_refs = True
-        super(SharedMemoryStrongRefsTests, cls).setUpClass()
+        super(IdMapStrongRefsTests, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
-        super(SharedMemoryStrongRefsTests, cls).tearDownClass()
+        super(IdMapStrongRefsTests, cls).tearDownClass()
         # restore defaults
         Category.use_strong_refs = False
         Article.use_strong_refs = False
 
-    def testSharedToRegular(self):
-        # overrides a test in SharedMemoryWeakRefsTests
+    def testCachedToRegular(self):
+        # overrides a test in IdMapWeakRefsTests
         # the expected result is that the category objects are the same
         # indeed, the reference to the articles is not weak anymore and they
         # are kept in memory after setUp. They are only erased when calling
-        # flush_cache
+        # flush
 
         article_list = Article.objects.all().select_related('category')
         last_article = article_list[0]

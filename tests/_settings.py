@@ -5,7 +5,15 @@ DATABASES = {
     'default': {
         'NAME': 'idmap',
         'ENGINE': 'django.db.backends.sqlite3',
-    }
+    },
+    'db1': {
+        'NAME': 'db1',
+        'ENGINE': 'django.db.backends.sqlite3',
+    },
+    'db2': {
+        'NAME': 'db2',
+        'ENGINE': 'django.db.backends.sqlite3',
+    },
 }
 
 INSTALLED_APPS = (

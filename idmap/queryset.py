@@ -2,11 +2,12 @@ from django.db.models.query import QuerySet
 from django.utils import six
 
 
-class SharedMemoryQuerySet(QuerySet):
+class IdMapQuerySet(QuerySet):
 
     def get(self, **kwargs):
         instance = None
         pk_attr = self.model._meta.pk.attname
+        db = self._db or self.db
 
         pk_interceptions = (
             'pk',
@@ -19,7 +20,7 @@ class SharedMemoryQuerySet(QuerySet):
         # is the pk
         if len(kwargs) == 1 and next(six.iterkeys(kwargs)) in pk_interceptions:
             instance = self.model.get_cached_instance(
-                next(six.itervalues(kwargs)))
+                next(six.itervalues(kwargs)), db)
 
         where_children = self.query.where.children
 
@@ -30,17 +31,17 @@ class SharedMemoryQuerySet(QuerySet):
             param = where_child.rhs
 
             if col in ('pk', pk_attr) and lookup_type == 'exact':
-                instance = self.model.get_cached_instance(param)
+                instance = self.model.get_cached_instance(param, db)
 
         # The cache missed or was not applicable, hit the database!
         if instance is None:
-            instance = super(SharedMemoryQuerySet, self).get(**kwargs)
+            instance = super(IdMapQuerySet, self).get(**kwargs)
 
             # gets the pk of the retrieved object, and if it exists in the
             # cache, returns the cached instance
             # This enables object retrieved from 2 different ways (e.g directly
             # and through a relation) to share the same instance in memory.
-            cached_instance = self.model.get_cached_instance(instance.pk)
+            cached_instance = self.model.get_cached_instance(instance.pk, db)
             if cached_instance is not None:
                 return cached_instance
 

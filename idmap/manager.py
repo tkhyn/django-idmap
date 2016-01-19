@@ -1,11 +1,8 @@
-from django.db.models.manager import Manager
+from django.db.models.manager import BaseManager, Manager
 
-from .queryset import SharedMemoryQuerySet
+from .queryset import IdMapQuerySet
 
 
-class SharedMemoryManager(Manager):
+class IdMapManager(BaseManager.from_queryset(IdMapQuerySet), Manager):
 
     use_for_related_fields = True
-
-    def get_queryset(self):
-        return SharedMemoryQuerySet(self.model, using=self._db)

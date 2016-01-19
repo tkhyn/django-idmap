@@ -1,8 +1,8 @@
-from idmap.models import SharedMemoryModel
+from idmap.models import IdMapModel
 from django.db import models
 
 
-class Category(SharedMemoryModel):
+class Category(IdMapModel):
     name = models.CharField(max_length=32)
 
 
@@ -10,7 +10,7 @@ class RegularCategory(models.Model):
     name = models.CharField(max_length=32)
 
 
-class Article(SharedMemoryModel):
+class Article(IdMapModel):
     name = models.CharField(max_length=32)
     category = models.ForeignKey(Category)
     category2 = models.ForeignKey(RegularCategory)

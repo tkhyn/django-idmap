@@ -1,20 +1,17 @@
-from django.test import TestCase
 from django.utils import six
 
-from idmap import flush_cache
-
 from .app.models import Article, Category, RegularCategory
+
+from ._base import TestCase
 
 
 class GetRelatedTestsBase(TestCase):
     """
-    Getter tests to check the behaviour of SharedMemoryQuerySet.get
+    Getter tests to check the behaviour of IdMapQuerySet.get
     when a 'where' clause is present (when using a related manager)
     """
 
     def setUp(self):
-        flush_cache()
-
         Article.use_strong_refs = True
 
         category = Category.objects.create(name="Category")
@@ -48,9 +45,11 @@ class GetRelatedStrongRefsTests(GetRelatedTestsBase):
     @classmethod
     def setUpClass(cls):
         Article.use_strong_refs = True
+        super(GetRelatedStrongRefsTests, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
+        super(GetRelatedStrongRefsTests, cls).tearDownClass()
         # restore defaults
         Article.use_strong_refs = False
 
