@@ -21,6 +21,10 @@ class SharedMemoryWeakRefsTests(TestCase):
                                           category=category,
                                           category2=regcategory)
 
+    def testRetrieveByPK(self):
+        for article in Article.objects.all():
+            Article.objects.get(pk=article.pk)
+
     def testSharedMemoryReferences(self):
         article_list = Article.objects.all().select_related('category')
         last_article = article_list[0]

@@ -9,6 +9,9 @@ MANIFEST
 # tox
 .tox
 
+# tests
+tests/.coverage
+
 # buildout
 .installed.cfg
 .mr.developer.cfg
