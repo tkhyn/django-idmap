@@ -20,39 +20,39 @@ class IdMapWeakRefsTests(TestCase):
                                           category=category,
                                           category2=regcategory)
 
-    def testRetrieveByPK(self):
+    def test_retrieve_by_pk(self):
         for article in Article.objects.all():
             Article.objects.get(pk=article.pk)
 
-    def testCachedReferences(self):
+    def test_cached_references(self):
         article_list = Article.objects.all().select_related('category')
         last_article = article_list[0]
         for article in article_list[1:]:
             self.assertIs(article.category, last_article.category)
             last_article = article
 
-    def testRegularReferences(self):
+    def test_regular_references(self):
         article_list = RegularArticle.objects.all().select_related('category')
         last_article = article_list[0]
         for article in article_list[1:]:
             self.assertIsNot(article.category2, last_article.category2)
             last_article = article
 
-    def testRegularToCached(self):
+    def test_regular_to_cached(self):
         article_list = RegularArticle.objects.all().select_related('category')
         last_article = article_list[0]
         for article in article_list[1:]:
             self.assertIs(article.category, last_article.category)
             last_article = article
 
-    def testCachedToRegular(self):
+    def test_cached_to_regular(self):
         article_list = Article.objects.all().select_related('category')
         last_article = article_list[0]
         for article in article_list[1:]:
             self.assertIsNot(article.category2, last_article.category2)
             last_article = article
 
-    def testObjectDeletion(self):
+    def test_object_deletion(self):
         # This must executed first so its guaranteed to be in memory.
         article_list = list(Article.objects.all().select_related('category'))
 

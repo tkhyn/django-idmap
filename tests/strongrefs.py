@@ -20,7 +20,7 @@ class IdMapStrongRefsTests(IdMapWeakRefsTests):
         Category.use_strong_refs = False
         Article.use_strong_refs = False
 
-    def testCachedToRegular(self):
+    def test_cached_to_regular(self):
         # overrides a test in IdMapWeakRefsTests
         # the expected result is that the category objects are the same
         # indeed, the reference to the articles is not weak anymore and they

@@ -21,7 +21,7 @@ class SubclassesTests(TestCase):
                                       category=category,
                                       category2=regcategory)
 
-    def testFlushSubArticle(self):
+    def test_flush_sub_article(self):
 
         # make a list of Articles so that they're in cache
         article_list = list(Article.objects.all())
@@ -41,7 +41,7 @@ class SubclassesTests(TestCase):
         for pk, __ in sub_pkids:
             self.assertIsNone(SubArticle.get_cached_instance(pk))
 
-    def testFlushAll(self):
+    def test_flush_all(self):
 
         # make a list of Articles and SubArticles so that they're in cache
         list(Article.objects.all())
