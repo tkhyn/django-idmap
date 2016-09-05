@@ -48,11 +48,14 @@ You also need to add ``'idmap'`` to the ``INSTALLED_APPS`` setting.
 Quick start
 -----------
 
-To enable the identity mapper for a model, you simply need to make it inherit from ``idmap.models.IdMapModel`` instead of ``django.db.models.Model``.
+To enable the identity mapper for a model, you simply need to make it inherit
+from ``idmap.models.IdMapModel`` instead of ``django.db.models.Model``.
 
 .. tip::
 
-   You can import ``idmap.models`` as you would import ``django.db.models``. ``idmap.models`` exposes all that is exposed by ``django.db.models`` plus the ``IdMapModel`` model class.
+   You can import ``idmap.models`` as you would import ``django.db.models``.
+   ``idmap.models`` exposes all that is exposed by ``django.db.models`` plus
+   the ``IdMapModel`` model class.
 
 You may of course mix and match ``IdMapModel`` and ``Model``::
 
@@ -69,7 +72,8 @@ You may of course mix and match ``IdMapModel`` and ``Model``::
 
 - Weak references mode: the instance will be removed from the cache once there
   are no more references to it. This is the default behavior
-- Strong references mode: the instance will be loaded only once from the database and will be removed from the cache when it is flushed
+- Strong references mode: the instance will be loaded only once from the
+  database and will be removed from the cache when it is flushed
 
 If you want to use strong references for a particular model, simply set
 ``use_strong_refs`` to ``True`` in the derived model class::
@@ -84,8 +88,8 @@ If you want to use strong references for a particular model, simply set
 Manual operations
 -----------------
 
-In most cases, that's all there is to do with ``django-idmap``. Sometimes, you may
-need to flush the cache manually before the request is finished.
+In most cases, that's all there is to do with ``django-idmap``. Sometimes, you
+may need to flush the cache manually before the request is finished.
 
 You can use:
 
@@ -97,14 +101,20 @@ You can use:
 Signals
 -------
 
-``idmap.signals.pre_flush`` and ``idmap.signals.post_flush`` are sent before - respectively after - the cache is flushed. Connect handlers to these if you need to run code at these moments.
+``idmap.signals.pre_flush`` and ``idmap.signals.post_flush`` are sent before -
+respectively after - the cache is flushed. Connect handlers to these if you
+need to run code at these moments.
 
 .. warning:
 
-   ``pre_flush`` and ``post_flush`` are only sent when the ``flush`` function is used or when the cache is automatically flushed (when the request ends).
+   ``pre_flush`` and ``post_flush`` are only sent when the ``flush`` function
+   is used or when the cache is automatically flushed (when the request ends).
 
 
-``django-idmap`` flushes the cache when the ``request_finished`` or ``post_migrate`` signal are sent. This default behavior may be modified (at your own risk!) by disconnecting the ``idmap.signals.flush_idmap`` handler from these signals.
+``django-idmap`` flushes the cache when the ``request_finished`` or
+``post_migrate`` signal are sent. This default behavior may be modified (at
+your own risk!) by disconnecting the ``idmap.signals.flush_idmap`` handler
+from these signals.
 
 
 Multiple database support
@@ -129,13 +139,17 @@ different from ``instance2_1`` with primary key ``1`` in database ``db2``::
    >>> assert instance1_1 is instance 2_1
    AssertionError
 
-When using multiple databases, you may also flush only one database by providing its name to ``idmap.flush()``::
+When using multiple databases, you may also flush only one database by
+providing its name to ``idmap.flush()``::
 
    >>> idmap.flush('db1')
 
-will only flush instances that were retrieved using the database ``db1``. ``IdMapModel.flush_instance_cache`` can also take a ``db`` argument.
+will only flush instances that were retrieved using the database ``db1``.
+``IdMapModel.flush_instance_cache`` can also take a ``db`` argument.
 
-Similarly, a keyword-argument ``db`` is provided when the ``pre_flush`` and ``post_flush`` signals are sent. ``db`` is ``None`` if all databases are flushed (i.e. if no database alias was provided).
+Similarly, a keyword-argument ``db`` is provided when the ``pre_flush`` and
+``post_flush`` signals are sent. ``db`` is ``None`` if all databases are
+flushed (i.e. if no database alias was provided).
 
 
 Proxy models
