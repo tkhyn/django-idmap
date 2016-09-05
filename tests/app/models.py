@@ -24,3 +24,8 @@ class RegularArticle(models.Model):
 
 class SubArticle(Article):
     pass
+
+
+class ArticleProxy(Article):
+    class Meta:
+        proxy = True

@@ -10,6 +10,7 @@ Added:
 - Renames ``flush_cache`` function to ``flush``
 - ``pre_flush`` and ``post_flush`` signals
 - Support for Django 1.9 and Python 3.5
+- Support of proxy models using proxy groups
 
 
 v0.4 (09-12-2015)

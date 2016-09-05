@@ -58,7 +58,6 @@ class IdMapModel(models.Model):
             else:
                 return instance
 
-
     # DJANGO-IDMAP METHODS
 
     @classmethod

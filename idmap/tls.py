@@ -16,6 +16,9 @@ def get_cache(cls, flush=False):
     except AttributeError:
         _tls.idmap_cache = cls_dict = defaultdict(dict)
 
+    while cls._meta.proxy:
+        cls = cls.__mro__[1]
+
     # using defaultdict.get does not create the key if it does not exist
     cache = cls_dict.get(cls)
     if flush is False and cache is not None:

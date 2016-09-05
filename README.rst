@@ -137,6 +137,22 @@ will only flush instances that were retrieved using the database ``db1``. ``IdMa
 
 Similarly, a keyword-argument ``db`` is provided when the ``pre_flush`` and ``post_flush`` signals are sent. ``db`` is ``None`` if all databases are flushed (i.e. if no database alias was provided).
 
+
+Proxy models
+------------
+
+All instances of models and proxy models using the same base concrete class
+(let's call this a proxy family) are stored in the same cache, and are
+accessible through all the members of the proxy family::
+
+   >>> class MyProxyModel(MyModel):
+   >>>     class Meta:
+   >>>         proxy = True
+   >>> original = MyModel.objects.create(pk=1)
+   >>> proxy = MyProxyModel.objects.create(pk=2)
+   >>> assert original is MyProxyModel.get(pk=1)
+
+
 References
 ----------
 
