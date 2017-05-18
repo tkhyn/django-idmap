@@ -9,7 +9,7 @@ Added:
 - Support of multiple databases for one model
 - Renames ``flush_cache`` function to ``flush``
 - ``pre_flush`` and ``post_flush`` signals
-- Support for Django 1.9 and Python 3.5
+- Support for Django 1.11 and Python 3.6
 - Support of proxy models using proxy groups
 
 
