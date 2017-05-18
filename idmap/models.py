@@ -32,7 +32,13 @@ class IdMapModel(models.Model):
         infering the pk value from args and kwargs. The cache is then populated
         whenever possible (ie when it is possible to infer the pk value).
         """
-        if cls._deferred:
+        try:
+            is_deferred = cls is models.DEFERRED
+        except AttributeError:
+            # django < 1.10
+            is_deferred = cls._deferred
+
+        if is_deferred:
             args = ()
             kwargs = dict(zip(field_names, values))
         else:
