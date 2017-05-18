@@ -4,7 +4,7 @@ from django.utils import six
 
 class IdMapQuerySet(QuerySet):
 
-    def get(self, **kwargs):
+    def get(self, *args, **kwargs):
         instance = None
         pk_attr = self.model._meta.pk.attname
         db = self._db or self.db
@@ -18,6 +18,20 @@ class IdMapQuerySet(QuerySet):
 
         # This is an exact lookup for the pk only -> kwargs.values()[0]
         # is the pk
+        try:
+            if len(args) == 1:
+                q = args[0]
+                if q.connector == 'AND' and not q.negated and \
+                len(q.children) == 1:
+                    c = q.children[0]
+                    if c[0] in pk_interceptions:
+                        args = []
+                        for k in pk_interceptions:
+                            kwargs.pop(k, None)
+                        kwargs[pk_attr] = c[1]
+        except (AttributeError, IndexError):
+            pass
+
         if len(kwargs) == 1 and next(six.iterkeys(kwargs)) in pk_interceptions:
             instance = self.model.get_cached_instance(
                 next(six.itervalues(kwargs)), db)
@@ -35,7 +49,7 @@ class IdMapQuerySet(QuerySet):
 
         # The cache missed or was not applicable, hit the database!
         if instance is None:
-            instance = super(IdMapQuerySet, self).get(**kwargs)
+            instance = super(IdMapQuerySet, self).get(*args, **kwargs)
 
             # gets the pk of the retrieved object, and if it exists in the
             # cache, returns the cached instance
