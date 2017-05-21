@@ -1,3 +1,4 @@
+import django
 from django.db import models
 from django.db.models.base import ModelBase
 
@@ -25,15 +26,34 @@ class IdMapModelBase(ModelBase):
                 meta_values[attr] = getattr(meta, attr)
                 delattr(meta, attr)
             except AttributeError:
-                meta_values[attr] = default
+                pass
+
+        if django.VERSION < (1, 10):
+            # these attributes are only supported from 1.10 onwards
+            # if they are still defined when calling super.__new__ this raises
+            # an exception
+            for attr in ['base_manager_name', 'default_manager_name']:
+                try:
+                    delattr(meta, attr)
+                except AttributeError:
+                    pass
 
         cls = super(IdMapModelBase, mcs).__new__(mcs, name, bases, attrs)
 
         for attr in six.iterkeys(META_VALUES):
-            setattr(cls._meta, attr, meta_values[attr])
-
-        for attr in ['base_manager_name', 'default_manager_name']:
-            setattr(cls._meta, attr, 'objects')
+            try:
+                # value defined in the class' own Meta
+                setattr(cls._meta, attr, meta_values[attr])
+            except KeyError:
+                # value not defined, look into bases' Meta
+                for base in cls.mro()[1:]:
+                    try:
+                        setattr(cls._meta, attr, getattr(base._meta, attr))
+                        break
+                    except AttributeError:
+                        pass
+                else:
+                    setattr(cls._meta, attr, META_VALUES[attr])
 
         return cls
 
@@ -52,6 +72,8 @@ class IdMapModel(six.with_metaclass(IdMapModelBase, models.Model)):
     class Meta:
         # does not inherit from base_class.Meta but that's not an issue
         abstract = True
+        base_manager_name = 'objects'
+        default_manager_name = 'objects'
 
     # OVERRIDES
 
