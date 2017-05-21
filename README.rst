@@ -169,6 +169,23 @@ accessible through all the members of the proxy family::
    >>> assert original is MyProxyModel.get(pk=1)
 
 
+Inheritance catch-ups
+---------------------
+
+In case you need to use a custom manager or custom metaclass on a model based
+on ``IdMapModel``, you need to derive them from ``idmap``'s own manager and
+metaclass::
+
+   >>> class MyModelBase(models.IdMapModelBase):
+   >>>     [...]
+   >>> class MyManager(models.IdMapManager):
+   >>>     [...]
+   >>> class MyModel(models.IdMapModel,
+                     metaclass=MyModelBase): # on python 3
+   >>>     __metaclass__ = MyModelBase  # on python 2
+   >>>     objects = MyManager()
+
+
 References
 ----------
 

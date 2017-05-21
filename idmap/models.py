@@ -32,6 +32,9 @@ class IdMapModelBase(ModelBase):
         for attr in six.iterkeys(META_VALUES):
             setattr(cls._meta, attr, meta_values[attr])
 
+        for attr in ['base_manager_name', 'default_manager_name']:
+            setattr(cls._meta, attr, 'objects')
+
         return cls
 
 
@@ -39,9 +42,9 @@ class IdMapModel(six.with_metaclass(IdMapModelBase, models.Model)):
     """
     Abstract class to derive any idmap-enabled model from
 
-    :ivar use_strong_refs: should one use strong refs or not for instances.
-        False by default. If True, instances will be kept in the cache until
-        explicitly flushed
+    Meta can set ``use_strong_refs`` to True if one should use strong references
+    (= kept in cache until explicitly flushed) for stored instances, and
+    ``multi_db`` to True if the model is used in several databases
     """
 
     objects = IdMapManager()
