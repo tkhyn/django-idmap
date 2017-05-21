@@ -1,7 +1,7 @@
 django-idmap
 ============
 
-|copyright| 2014-2015 Thomas Khyn
+|copyright| 2014-2017 Thomas Khyn
 |copyright| 2009 David Cramer
 
 An identity mapper for the Django ORM. This is a fork of django-idmapper_,
