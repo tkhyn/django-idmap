@@ -1,9 +1,8 @@
-# defines __version__ from __version_info__
+"""
+Defines __version__ from __version_info__
+"""
 
-__version_info__ = (0, 4, 1, 'final', 0)
-
-
-import subprocess
+__version_info__ = (1, 0, 0, 'final', 0)
 
 
 def get_version(version=__version_info__):
@@ -27,6 +26,7 @@ def get_version(version=__version_info__):
 
 def get_hg_chgset():
     try:
+        import subprocess
         return subprocess.check_output(['hg', 'id', '-i']).strip()
     except:
         return '?'

@@ -1,5 +1,5 @@
 from .version import __version__, __version_info__
 
-from .signals import flush_cache
+from .functions import flush
 
 default_app_config = 'idmap.apps.IdMapConfig'
