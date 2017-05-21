@@ -81,7 +81,8 @@ If you want to use strong references for a particular model, simply set
    from idmap import models
 
    class MyModel(models.IdMapModel):
-      use_strong_refs = True
+      class Meta:
+         use_strong_refs = True
       [...]
 
 
@@ -125,7 +126,8 @@ databases. It is possible to tell ``django-idmap`` to also take the database
 into account when creating or getting instances::
 
    class MyModel(models.IdMapModel):
-      multi_db = True
+      class Meta:
+         multi_db = True
       [...]
 
 This way, ``instance1_1`` with primary key ``1`` in database ``db1`` will be

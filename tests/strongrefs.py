@@ -9,16 +9,16 @@ class IdMapStrongRefsTests(IdMapWeakRefsTests):
 
     @classmethod
     def setUpClass(cls):
-        Category.use_strong_refs = True
-        Article.use_strong_refs = True
+        Category._meta.use_strong_refs = True
+        Article._meta.use_strong_refs = True
         super(IdMapStrongRefsTests, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
         super(IdMapStrongRefsTests, cls).tearDownClass()
         # restore defaults
-        Category.use_strong_refs = False
-        Article.use_strong_refs = False
+        Category._meta.use_strong_refs = False
+        Article._meta.use_strong_refs = False
 
     def test_cached_to_regular(self):
         # overrides a test in IdMapWeakRefsTests

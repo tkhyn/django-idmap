@@ -27,22 +27,22 @@ def get_cache(cls, flush=False):
     # reset is not False
     # reset = None or True => clear all caches from all dbs
     # reset = database name => clear only this database's cache
-    new_cache_func = dict if cls.use_strong_refs else WeakValueDictionary
-    if flush in (None, True) or cache is None or not cls.multi_db:
-        if cls.multi_db:
+    new_cache_func = dict if cls._meta.use_strong_refs else WeakValueDictionary
+    if flush in (None, True) or cache is None or not cls._meta.multi_db:
+        if cls._meta.multi_db:
             cache = defaultdict(new_cache_func)
         else:
             cache = new_cache_func()
         cls_dict[cls] = cache
     else:
-        # flush is true, cls.multi_db is True and cache is not None
+        # flush is true, cls._meta.multi_db is True and cache is not None
         cache[flush] = new_cache_func()
     return cache
 
 
 def cache_instance(cls, instance):
     cache = get_cache(cls)
-    if cls.multi_db:
+    if cls._meta.multi_db:
         cache[instance._state.db][instance.pk] = instance
     else:
         cache[instance.pk] = instance
@@ -51,10 +51,10 @@ def cache_instance(cls, instance):
 def get_cached_instance(cls, pk, db=None):
     cache = get_cache(cls)
     try:
-        if cls.multi_db:
+        if cls._meta.multi_db:
             assert db is not None, \
                 'A database should be provided to retrieve an instance of a ' \
-                'model having multi_db=True'
+                'model set with multi_db=True'
             return cache[db][pk]
         else:
             return cache[pk]
@@ -65,7 +65,7 @@ def get_cached_instance(cls, pk, db=None):
 def flush_cached_instance(cls, instance):
     cache = get_cache(cls)
     try:
-        if cls.multi_db:
+        if cls._meta.multi_db:
             del cache[instance._state.db][instance.pk]
         else:
             del cache[instance.pk]

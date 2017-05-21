@@ -12,7 +12,7 @@ class GetRelatedTestsBase(TestCase):
     """
 
     def setUp(self):
-        Article.use_strong_refs = True
+        Article._meta.use_strong_refs = True
 
         category = Category.objects.create(name="Category")
 
@@ -44,14 +44,14 @@ class GetRelatedStrongRefsTests(GetRelatedTestsBase):
 
     @classmethod
     def setUpClass(cls):
-        Article.use_strong_refs = True
+        Article._meta.use_strong_refs = True
         super(GetRelatedStrongRefsTests, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
         super(GetRelatedStrongRefsTests, cls).tearDownClass()
         # restore defaults
-        Article.use_strong_refs = False
+        Article._meta.use_strong_refs = False
 
     def test_get_related(self):
         # we are using strong refs, the article retrieved via category

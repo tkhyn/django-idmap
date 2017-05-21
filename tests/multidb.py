@@ -8,7 +8,7 @@ from ._base import TestCase
 class MultiDBTests(TestCase):
     """
     Create and retrieve instances with the same id in different databases, make
-    sure they have different ids if the models' multi_db attribute is True
+    sure they have different ids if the models' meta multi_db attribute is True
     """
 
     multi_db = True
@@ -16,12 +16,12 @@ class MultiDBTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super(MultiDBTests, cls).setUpClass()
-        Category.multi_db = True
+        Category._meta.multi_db = True
 
     @classmethod
     def tearDownClass(cls):
         super(MultiDBTests, cls).tearDownClass()
-        Category.multi_db = False  # back to default
+        Category._meta.multi_db = False  # back to default
 
     def setUp(self):
         Category.objects.create(pk=1, name='Category on default')
