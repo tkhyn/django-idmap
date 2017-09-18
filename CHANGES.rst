@@ -14,6 +14,13 @@ Added:
 - Support of options in django's Meta
 
 
+v1.0.1 (18-09-2017)
+...................
+
+Fixed:
+- refresh_from_db inconsistency when using weak references
+
+
 v0.4 (09-12-2015)
 -----------------
 

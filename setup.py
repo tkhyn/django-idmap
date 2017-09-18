@@ -34,10 +34,8 @@ setup(
     keywords=['django', 'identity', 'mapper'],
     classifiers=[
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.6',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Development Status :: %s' % DEV_STATUS[dev_status],
         'License :: OSI Approved :: BSD License',
         'Framework :: Django',

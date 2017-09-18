@@ -1,5 +1,7 @@
 from django.utils import six
 
+from idmap import flush
+
 from .app.models import Category, RegularCategory, Article, RegularArticle,\
     ArticleProxy
 
@@ -82,3 +84,16 @@ class IdMapWeakRefsTests(TestCase):
             article = Article.get_cached_instance(proxy_list[n].pk)
             self.assertTrue(isinstance(article, ArticleProxy))
             self.assertIs(article, proxy_list[n])
+
+    def test_refresh_from_db(self):
+        c = Category.objects.create(name='cat1')
+        Category.objects.filter(name='cat1').update(name='cat2')
+        c.refresh_from_db()
+        self.assertEqual(c.name, 'cat2')
+
+    def test_refresh_from_db_after_flush(self):
+        c = Category.objects.create()
+        flush()
+        c.refresh_from_db()
+        cached_c = Category.get_cached_instance(pk=c.pk)
+        self.assertIsNotNone(cached_c)
