@@ -117,6 +117,11 @@ class IdMapModel(six.with_metaclass(IdMapModelBase, models.Model)):
             else:
                 return instance
 
+    def refresh_from_db(self, using=None, fields=None):
+        self.flush_cached_instance(self)
+        super(IdMapModel, self).refresh_from_db(using, fields)
+        self.cache_instance(self)
+
     # DJANGO-IDMAP METHODS
 
     @classmethod
