@@ -2,7 +2,7 @@
 Defines __version__ from __version_info__
 """
 
-__version_info__ = (1, 0, 1, 'final', 0)
+__version_info__ = (1, 0, 2, 'final', 0)
 
 
 def get_version(version=__version_info__):

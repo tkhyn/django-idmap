@@ -12,16 +12,16 @@ class IdMapWeakRefsTests(TestCase):
 
     def setUp(self):
         n = 0
-        category = Category.objects.create(name="Category %d" % n)
-        regcategory = RegularCategory.objects.create(name="Category %d" % n)
+        self.cat = Category.objects.create(name="Category %d" % n)
+        self.rcat = RegularCategory.objects.create(name="Category %d" % n)
 
         for n in six.moves.xrange(0, 10):
             Article.objects.create(name="Article %d" % n,
-                                   category=category,
-                                   category2=regcategory)
+                                   category=self.cat,
+                                   category2=self.rcat)
             RegularArticle.objects.create(name="Article %d" % n,
-                                          category=category,
-                                          category2=regcategory)
+                                          category=self.cat,
+                                          category2=self.rcat)
 
     def test_retrieve_by_pk(self):
         for article in Article.objects.all():
@@ -86,14 +86,38 @@ class IdMapWeakRefsTests(TestCase):
             self.assertIs(article, proxy_list[n])
 
     def test_refresh_from_db(self):
-        c = Category.objects.create(name='cat1')
-        Category.objects.filter(name='cat1').update(name='cat2')
-        c.refresh_from_db()
-        self.assertEqual(c.name, 'cat2')
+        Category.objects.filter(pk=self.cat.pk).update(name='Category 1')
+        self.cat.refresh_from_db()
+        self.assertEqual(self.cat.name, 'Category 1')
 
     def test_refresh_from_db_after_flush(self):
-        c = Category.objects.create()
         flush()
-        c.refresh_from_db()
-        cached_c = Category.get_cached_instance(pk=c.pk)
+        self.cat.refresh_from_db()
+        cached_c = Category.get_cached_instance(pk=self.cat.pk)
         self.assertIsNotNone(cached_c)
+
+    def test_values(self):
+        self.assertEqual(
+            Category.objects.values('name').get(pk=self.cat.pk),
+            {'name': 'Category 0'}
+        )
+
+    def test_values_list(self):
+        self.assertEqual(
+            Category.objects.values_list('name').get(pk=self.cat.pk),
+            ['Category 0']
+        )
+
+    def test_flat_values_list(self):
+        self.assertEqual(
+            Category.objects.values_list('name', flat=True).get(pk=self.cat.pk),
+            'Category 0'
+        )
+
+    def test_flat_values_list_after_flush(self):
+        cat_pk = self.cat.pk
+        flush()
+        self.assertEqual(
+            Category.objects.values_list('name', flat=True).get(pk=cat_pk),
+            'Category 0'
+        )

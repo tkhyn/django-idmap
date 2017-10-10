@@ -1,6 +1,16 @@
 from django.db.models.query import QuerySet
 from django.utils import six
 
+try:
+    # django 1.9+
+    from django.db.models.query import ModelIterable, ValuesIterable, \
+        ValuesListIterable, FlatValuesListIterable
+    HAS_ITER_CLASSES = True
+except ImportError:
+    # django 1.8
+    from django.db.models.query import ValuesQuerySet, ValuesListQuerySet
+    HAS_ITER_CLASSES = False
+
 
 class IdMapQuerySet(QuerySet):
 
@@ -49,7 +59,23 @@ class IdMapQuerySet(QuerySet):
 
         # The cache missed or was not applicable, hit the database!
         if instance is None:
-            instance = super(IdMapQuerySet, self).get(*args, **kwargs)
+            if HAS_ITER_CLASSES:
+                kw = {'_iterable_class': ModelIterable}
+            else:
+                # django 1.8 does not use iterable classes
+                kw = {'klass': QuerySet}
+
+            clone = self._clone(_fields=None, **kw)
+            clone.query.clear_select_fields()
+            clone.query.default_cols = True
+
+            if HAS_ITER_CLASSES:
+                instance = super(
+                    IdMapQuerySet,
+                    clone
+                ).get(*args, **kwargs)
+            else:
+                instance = clone.get(*args, **kwargs)
 
             # gets the pk of the retrieved object, and if it exists in the
             # cache, returns the cached instance
@@ -57,6 +83,26 @@ class IdMapQuerySet(QuerySet):
             # and through a relation) to share the same instance in memory.
             cached_instance = self.model.get_cached_instance(instance.pk, db)
             if cached_instance is not None:
-                return cached_instance
+                instance = cached_instance
 
-        return instance
+        if HAS_ITER_CLASSES:
+            # django 1.9+
+            if self._iterable_class is ModelIterable:
+                return instance
+            elif self._iterable_class is ValuesListIterable:
+                return [getattr(instance, f) for f in self._fields]
+            elif self._iterable_class is FlatValuesListIterable:
+                return getattr(instance, self._fields[0])
+            elif self._iterable_class is ValuesIterable:
+                return {f: getattr(instance, f) for f in self._fields}
+        else:
+            if isinstance(self, ValuesListQuerySet):
+                values = [getattr(instance, f) for f in self._fields]
+                if self.flat:
+                    return values[0]
+                else:
+                    return values
+            elif isinstance(self, ValuesQuerySet):
+                return {f: getattr(instance, f) for f in self._fields}
+            else:
+                return instance

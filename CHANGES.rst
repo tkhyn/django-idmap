@@ -20,6 +20,12 @@ v1.0.1 (18-09-2017)
 Fixed:
 - refresh_from_db inconsistency when using weak references
 
+v1.0.2 (10-02-2017)
+...................
+
+Fixed:
+- issue #3: IdMapQuerySet.values_list() and .values() now work correctly
+
 
 v0.4 (09-12-2015)
 -----------------
