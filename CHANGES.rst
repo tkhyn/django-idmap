@@ -26,6 +26,15 @@ v1.0.2 (10-02-2017)
 Fixed:
 - issue #3: IdMapQuerySet.values_list() and .values() now work correctly
 
+v1.0.3 (08-12-2017)
+...................
+
+Added:
+- Django 2.0 support
+
+Removed:
+- Django 1.9 and 1.10 support (may still work)
+
 
 v0.4 (09-12-2015)
 -----------------

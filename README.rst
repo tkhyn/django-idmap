@@ -7,12 +7,11 @@ django-idmap
 An identity mapper for the Django ORM. This is a fork of django-idmapper_,
 which is no longer maintained.
 
-``django-idmap`` has been tested against django 1.8 and 1.9 and the latest
-minor versions of Python (2.7 and 3.5). Using it with django versions older
-than 1.8 is possible only with `version 0.3.3`_.
+``django-idmap`` has been tested against django 1.8, 1.11 and 2.0 and the
+latest minor versions of Python 2 and 3 (Django 2.0 only supports Python 3).
 
-If you like ``django-idmap`` and are looking for a way to thank me and/or
-encourage future development, you can send a few mBTC at this Bitcoin address:
+If you like django-gm2m and are looking for a way to thank me and/or encourage
+future development, here is my BTC or BCH donation address:
 ``1EwENyR8RV6tMc1hsLTkPURtn5wJgaBfG9``.
 
 
@@ -63,7 +62,7 @@ You may of course mix and match ``IdMapModel`` and ``Model``::
 
     class MyModel(models.IdMapModel):
         name = models.CharField(...)
-        fkey = models.ForeignKey('Other')
+        fkey = models.ForeignKey('Other', on_delete=models.CASCADE)
 
     class Other(models.Model):
         name = models.CharField(...)
@@ -76,7 +75,7 @@ You may of course mix and match ``IdMapModel`` and ``Model``::
   database and will be removed from the cache when it is flushed
 
 If you want to use strong references for a particular model, simply set
-``use_strong_refs`` to ``True`` in the derived model class::
+``use_strong_refs`` to ``True`` in the derived model class' ``Meta``::
 
    from idmap import models
 
@@ -195,4 +194,3 @@ Original code and concept: http://code.djangoproject.com/ticket/17
 
 .. |copyright| unicode:: 0xA9
 .. _django-idmapper: https://github.com/dcramer/django-idmapper
-.. _`version 0.3.3`: https://pypi.python.org/pypi/django-idmap/0.3.3
