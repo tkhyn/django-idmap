@@ -63,7 +63,7 @@ You may of course mix and match ``IdMapModel`` and ``Model``::
 
     class MyModel(models.IdMapModel):
         name = models.CharField(...)
-        fkey = models.ForeignKey('Other')
+        fkey = models.ForeignKey('Other', on_delete=models.CASCADE)
 
     class Other(models.Model):
         name = models.CharField(...)
